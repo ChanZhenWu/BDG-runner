@@ -2,7 +2,7 @@
 #################################################################
 ## This script is used to calculate CPK base on 3070 log file.
 ## Author: noon_chen@apple.com
-## V2.2
+## V2.3
 #################################################################
 
 #use strict;
@@ -70,6 +70,8 @@ $row = 0; $col = 0;
 $summary-> write($row, $col, 'SN', $format_head);
 $row = 0; $col = 1;
 $summary-> write($row, $col, 'Results', $format_head);
+$row = 0; $col = 2;
+$summary-> write($row, $col, 'TestTime(s)', $format_head);
 $row = 0; $col = 3;
 $summary-> write($row, $col, 'Criteria', $format_item);
 $row = 0; $col = 4;
@@ -274,6 +276,7 @@ while($title = <@Titles>)	# Items
 				$summary-> write($col-10, 0, $result[1], $format_item);
 				if($result[2] eq "00"){$summary-> write($col-10, 1, "Pass", $format_Pcpk);}
 				else{$summary-> write($col-10, 1, "Fail", $format_Fcpk);}
+				$summary-> write($col-10, 2, $result[4], $format_data);
 
 				#print substr($line,9+$SNlength,2)."\n";
 				#print "$items,###,$counter"."\n";
@@ -332,6 +335,7 @@ while($title = <@Titles>)	# Items
 				$summary-> write($col-10, 0, $result[1], $format_item);
 				if($result[2] eq "00"){$summary-> write($col-10, 1, "Pass", $format_Pcpk);}
 				else{$summary-> write($col-10, 1, "Fail", $format_Fcpk);}
+				$summary-> write($col-10, 2, $result[4], $format_data);
 
 				#print substr($line,9+$SNlength,2)."\n";
 				#print "$items,###,$counter"."\n";
