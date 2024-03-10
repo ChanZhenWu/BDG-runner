@@ -2,7 +2,7 @@
 #################################################################
 ## This script is used to calculate CPK base on 3070 log file.
 ## Author: noon_chen@apple.com
-## V2.3
+## V2.4
 #################################################################
 
 #use strict;
@@ -34,35 +34,11 @@ $workbook->set_landscape();				#设置横排格式
 $format_item = $log_report-> add_format(bold=>1, align=>'left', border=>1, size=>12, bg_color=>'cyan');
 $format_head = $log_report-> add_format(bold=>1, align=>'vcenter', border=>1, size=>12, bg_color=>'lime');
 $format_data = $log_report-> add_format(align=>'center', border=>1);
-$format_Fcpk = $log_report-> add_format(color=>'red', align=>'center', border=>1, bg_color=>'silver');
+$format_Fcpk = $log_report-> add_format(align=>'center', border=>1, bg_color=>'orange');
 $format_Pcpk = $log_report-> add_format(bold=>0, align=>'center', border=>1, bg_color=>'lime');
 $format_Hcpk = $log_report-> add_format(bold=>0, align=>'center', border=>1, bg_color=>'yellow');
 $format_FPY  = $log_report-> add_format(align=>'center', border=>1, num_format=> '10');
 
-$workbook->conditional_formatting('J2:K9999',
-    {
-    	type     => 'cell',
-     	criteria => 'less than',
-     	value    => 1.33,
-     	format   => $format_Fcpk,
-    });
-
-$workbook->conditional_formatting('J2:K9999',
-    {
-    	type     => 'cell',
-     	criteria => 'between',
-     	minimum  => 1.33,
-     	maximum  => 10,
-     	format   => $format_Pcpk,
-    });
-
-$workbook->conditional_formatting('J2:K9999',
-    {
-    	type     => 'cell',
-     	criteria => 'greater than',
-     	value    => 10,
-     	format   => $format_Hcpk,
-    });
 
 
 #写入文件头
@@ -122,6 +98,33 @@ $row = 0; $col = 9;
 $workbook-> write($row, $col, 'CP', $format_head);
 $row = 0; $col = 10;
 $workbook-> write($row, $col, 'CPK', $format_head);
+
+
+$workbook-> conditional_formatting('J2:K9999',
+    {
+    	type     => 'cell',
+     	criteria => 'between',
+     	minimum  => 1.33,
+     	maximum  => 10,
+     	format   => $format_Pcpk,
+    });
+
+$workbook-> conditional_formatting('J2:K9999',
+    {
+    	type     => 'cell',
+     	criteria => 'greater than',
+     	value    => 10,
+     	format   => $format_Hcpk,
+    });
+
+$workbook-> conditional_formatting('J2:K9999',
+    {
+    	type     => 'cell',
+     	criteria => 'greater than',
+     	value    => 0,
+     	format   => $format_Fcpk,
+    });
+
 
 $workbook-> write_formula(1, 5, "=MAX(L2:AAA2)", $format_data);  		#输出Max
 $workbook-> write_formula(1, 6, "=MIN(L2:AAA2)", $format_data);			#输出Min
