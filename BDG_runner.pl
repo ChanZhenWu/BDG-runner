@@ -2,11 +2,18 @@
 #################################################################
 ## This script is used to calculate CPK base on 3070 log file.
 ## Author: noon_chen@apple.com
-## V2.5
+## V3.0
 #################################################################
 
+print "\n\tCPK calculator base on i3070 log (v3.0)\n";
+
+use strict;
+use warnings;
 use Excel::Writer::XLSX;
-($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime(time);
+use Time::HiRes qw(time);
+
+(my $sec, my $min, my $hour, my $mday, my $mon, my $year,my $wday,my $yday,my $isdst) = localtime(time);
+my $start_time = time();
 
 #创建一个新的Excel文件
 my $log_report = Excel::Writer::XLSX->new('CPK_report'."-".$hour.$min.$sec.'.xlsx');
@@ -27,16 +34,16 @@ $log_report->set_size(1680, 1180);		# 设置初始窗口尺寸
 
 
 #新建一个格式
-$format_item = $log_report-> add_format(bold=>1, align=>'left', border=>1, size=>12, bg_color=>'cyan');
-$format_head = $log_report-> add_format(bold=>1, align=>'vcenter', border=>1, size=>12, bg_color=>'lime');
-$format_data = $log_report-> add_format(align=>'center', border=>1);
-$format_Fcpk = $log_report-> add_format(align=>'center', border=>1, bg_color=>'orange');
-$format_Pcpk = $log_report-> add_format(bold=>0, align=>'center', border=>1, bg_color=>'lime');
-$format_Hcpk = $log_report-> add_format(bold=>0, align=>'center', border=>1, bg_color=>'yellow');
-$format_FPY  = $log_report-> add_format(align=>'center', border=>1, num_format=> '10');
+my $format_item = $log_report-> add_format(bold=>1, align=>'left', border=>1, size=>12, bg_color=>'cyan');
+my $format_head = $log_report-> add_format(bold=>1, align=>'vcenter', border=>1, size=>12, bg_color=>'lime');
+my $format_data = $log_report-> add_format(align=>'center', border=>1);
+my $format_Fcpk = $log_report-> add_format(align=>'center', border=>1, bg_color=>'orange');
+my $format_Pcpk = $log_report-> add_format(bold=>0, align=>'center', border=>1, bg_color=>'lime');
+my $format_Hcpk = $log_report-> add_format(bold=>0, align=>'center', border=>1, bg_color=>'yellow');
+my $format_FPY  = $log_report-> add_format(align=>'center', border=>1, num_format=> '10');
 
 #写入文件头
-$row = 0; $col = 0;
+my $row = 0; my $col = 0;
 $summary-> write($row, $col, 'SN', $format_head);
 $row = 0; $col = 1;
 $summary-> write($row, $col, 'Results', $format_head);
@@ -61,14 +68,14 @@ $summary-> write($row, $col, '=COUNTIFS(CPK_report!K2:K9999,"<1.33")', $format_d
 $row = 3; $col = 4;
 $summary-> write_formula(3, 4, "=1-(E3/E2)", $format_FPY);  #输出FPY
 
-my $chart = $log_report-> add_chart( type => 'pie', embedded => 1 );
-$chart->add_series(
-    name       => '=Summary!$B$1',
-    categories => '=Summary!$D$2:$D$3',
-    values     => '=Summary!$E$2:$E$3',
-    data_labels => {value => 1},
-);
-$summary->insert_chart('D7',$chart,0,0,1.0,1.6);
+# my $chart = $log_report-> add_chart( type => 'pie', embedded => 1 );
+# $chart->add_series(
+#     name       => '=Summary!$B$1',
+#     categories => '=Summary!$D$2:$D$3',
+#     values     => '=Summary!$E$2:$E$3',
+#     data_labels => {value => 1},
+# );
+# $summary->insert_chart('D7',$chart,0,0,1.0,1.6);
 
 $row = 0; $col = 0;
 $workbook-> write($row, $col, 'Test Items', $format_head);
@@ -95,29 +102,29 @@ $workbook-> write($row, $col, 'CPK', $format_head);
 
 
 $workbook-> conditional_formatting('J2:K9999',
-    {
-    	type     => 'cell',
-     	criteria => 'between',
-     	minimum  => 1.33,
-     	maximum  => 10,
-     	format   => $format_Pcpk,
-    });
+{
+	type     => 'cell',
+ 	criteria => 'between',
+ 	minimum  => 1.33,
+ 	maximum  => 10,
+ 	format   => $format_Pcpk,
+	});
 
 $workbook-> conditional_formatting('J2:K9999',
-    {
-    	type     => 'cell',
-     	criteria => 'greater than',
-     	value    => 10,
-     	format   => $format_Hcpk,
-    });
+{
+	type     => 'cell',
+ 	criteria => 'greater than',
+ 	value    => 10,
+ 	format   => $format_Hcpk,
+	});
 
 $workbook-> conditional_formatting('J2:K9999',
-    {
-    	type     => 'cell',
-     	criteria => 'greater than',
-     	value    => 0,
-     	format   => $format_Fcpk,
-    });
+{
+	type     => 'cell',
+ 	criteria => 'greater than',
+ 	value    => 0,
+ 	format   => $format_Fcpk,
+	});
 
 $workbook-> write_formula(1, 5, "=MAX(L2:AAA2)", $format_data);  		#输出Max
 $workbook-> write_formula(1, 6, "=MIN(L2:AAA2)", $format_data);			#输出Min
@@ -129,39 +136,48 @@ $workbook-> write_formula(1, 10, "=MIN((D2-H2),(H2-E2))/I2/3", $format_data);  #
 ######################### create head ####################################################
 $row = 1;
 $col = 0;
-$colSN = 11;
-$log_counter = 0;
-print "\n","=> extracting header ... ","\n";
+my $colSN = 11;
+my $log_counter = 0;
+my $board = "";
+my $headN = "";
+my $line = "";
+my $title = "";
+my $subtitle = "";
+my @Titles = ();
 
-@analogfiles = <*.log>;
-foreach $analogfiles (@analogfiles)
+print "\n=> extracting header ... ","\n";
+
+my @analogfiles = <*.log>;
+foreach my $analogfiles (@analogfiles)
 {
-open LogN,"<$analogfiles";
-$log_counter++;
+	open LogN,"<$analogfiles";
+	$log_counter++;
 
-	if ($log_counter == 1){
-	open NLog,">head";
+	if ($log_counter == 1)
+	{
+		open NLog,">head";
 
 		$workbook-> write(0, $colSN, $analogfiles, $format_head);	#写入第一个log name
     	$colSN++;
 
-		while($line = <LogN>)
+		while(my $line = <LogN>)
     	{
-    	chomp $line;
-    	@string = split('\|', $line);
-		if ($line =~ "\@BTEST")
+    		chomp $line;
+    		my @string = split('\|', $line);
+			if ($line =~ "\@BTEST")
     		{
-    		#print $string[12]."\n";
-    		if ($string[12] eq "1"){$board = "single";}
-    		else{$board = "panel";}
-    		print $board;
-			print "\n".$analogfiles;
-    		}
+    			#print $string[12]."\n";
+    			if ($string[12] eq "1"){$board = "single";}
+    			else {$board = "panel";}
+    			print $board;
+				print "\n".$analogfiles;
+    			}
 
     	elsif ($line =~ "\@BLOCK")
        	{
        		$col = 0;
        		$headN = $string[1];
+       		if($board eq "panel"){$headN = substr($string[1], index($string[1],"%")+1);}
        		#print "\n".$headN;
        		#$workbook-> write($row, $col, $headN, $format);
        		#$row++;
@@ -171,6 +187,7 @@ $log_counter++;
        	{
        		#print $headN, "\r";
        		print NLog $headN, "\r";
+       		push(@Titles, $headN);
        		$workbook-> write($row, $col, $headN, $format_item);					#输出测试名，单项测试
 			$workbook-> write($row, 1, substr($line,4,3), $format_data);			#输出TYPE
        		$workbook-> write($row, 3, $string[3], $format_data);					#输出上限值
@@ -183,11 +200,11 @@ $log_counter++;
 			$workbook-> write_formula($row, 10, "=MIN((D".($row+1)."-H".($row+1)."),(H".($row+1)."-E".($row+1)."))/I".($row+1)."/3", $format_data);  #输出CPK
 
        		$workbook-> conditional_formatting($row, 5,
-    			{
-    				type     => 'cell',
-    			 	criteria => 'greater than',
-    			 	value    => "=D".($row+1)."*0.75",
-    			 	format   => $format_Fcpk,
+    		{
+    			type     => 'cell',
+    		 	criteria => 'greater than',
+    		 	value    => "=D".($row+1)."*0.75",
+    		 	format   => $format_Fcpk,
     			});
        		$row++;
        		}
@@ -195,6 +212,7 @@ $log_counter++;
        	{
        		#print $headN, "\r";
        		print NLog $headN, "\r";
+       		push(@Titles, $headN);
        		$workbook-> write($row, $col, $headN, $format_item);					# 输出测试名，单项测试
 			$workbook-> write($row, 1, substr($line,4,3), $format_data);			# 输出TYPE
        		$workbook-> write($row, 3, $string[3], $format_data);
@@ -207,28 +225,29 @@ $log_counter++;
 			$workbook-> write_formula($row, 10, "=MIN((D".($row+1)."-H".($row+1)."),(H".($row+1)."-E".($row+1)."))/I".($row+1)."/3", $format_data);  #输出CPK
 
        		$workbook-> conditional_formatting($row, 5,
-    			{
-    				type     => 'cell',
-    			 	criteria => 'greater than',
-    			 	value    => "=D".($row+1)."-(D".($row+1)."-E".($row+1).")*0.2",
-    			 	format   => $format_Fcpk,
+    		{
+    			type     => 'cell',
+    		 	criteria => 'greater than',
+    		 	value    => "=D".($row+1)."-(D".($row+1)."-E".($row+1).")*0.2",
+    		 	format   => $format_Fcpk,
     			});
 
        		$workbook-> conditional_formatting($row, 6,
-    			{
-    				type     => 'cell',
-    			 	criteria => 'less than',
-    			 	value    => "=E".($row+1)."+(D".($row+1)."-E".($row+1).")*0.2",
-    			 	format   => $format_Fcpk,
+    		{
+    			type     => 'cell',
+    		 	criteria => 'less than',
+    		 	value    => "=E".($row+1)."+(D".($row+1)."-E".($row+1).")*0.2",
+    		 	format   => $format_Fcpk,
     			});
     		
        		$row++;
        		}
         elsif ($line =~ "\@LIM2" and $line =~ "\@A-DIO" and scalar @string == 6)    # Diode
        	{
-       		$subtitle = substr ($line, 24, rindex($line,"\{@LIM") - 24),"\n";
+       		$subtitle = substr ($line, 24, rindex($line,"\{\@LIM") - 24);
        		#print "\n".$headN."/".$subtitle; 
        		print NLog $headN."/".$subtitle, "\n";
+       		push(@Titles, $headN."/".$subtitle);
        		$workbook-> write($row, $col, $headN."/".$subtitle, $format_item);		# 输出测试名，多项测试
 			$workbook-> write($row, 1, substr($line,4,3), $format_data);  			# 输出TYPE
        		$workbook-> write($row, 3, $string[4], $format_data);
@@ -241,19 +260,19 @@ $log_counter++;
 			$workbook-> write_formula($row, 10, "=MIN((D".($row+1)."-H".($row+1)."),(H".($row+1)."-E".($row+1)."))/I".($row+1)."/3", $format_data);  #输出CPK
 
        		$workbook-> conditional_formatting($row, 5,
-    			{
-    				type     => 'cell',
-    			 	criteria => 'greater than',
-    			 	value    => "=D".($row+1)."-(D".($row+1)."-E".($row+1).")*0.2",
-    			 	format   => $format_Fcpk,
+    		{
+    			type     => 'cell',
+    		 	criteria => 'greater than',
+    		 	value    => "=D".($row+1)."-(D".($row+1)."-E".($row+1).")*0.2",
+    		 	format   => $format_Fcpk,
     			});
 
        		$workbook-> conditional_formatting($row, 6,
-    			{
-    				type     => 'cell',
-    			 	criteria => 'less than',
-    			 	value    => "=E".($row+1)."+(D".($row+1)."-E".($row+1).")*0.2",
-    			 	format   => $format_Fcpk,
+    		{
+    			type     => 'cell',
+    		 	criteria => 'less than',
+    		 	value    => "=E".($row+1)."+(D".($row+1)."-E".($row+1).")*0.2",
+    		 	format   => $format_Fcpk,
     			});
     		
        		$row++;
@@ -262,6 +281,7 @@ $log_counter++;
        	{
        		#print $headN, "\r";
        		print NLog $headN, "\r";
+       		push(@Titles, $headN);
        		$workbook-> write($row, $col, $headN, $format_item);					# 输出测试名，单项测试
 			$workbook-> write($row, 1, substr($line,4,3), $format_data);			# 输出TYPE
        		$workbook-> write($row, 3, $string[3], $format_data);
@@ -274,18 +294,18 @@ $log_counter++;
 			$workbook-> write_formula($row, 10, "=MIN((D".($row+1)."-H".($row+1)."),(H".($row+1)."-E".($row+1)."))/I".($row+1)."/3", $format_data);  #输出CPK
 
        		$workbook-> conditional_formatting($row, 5,
-    			{
-    				type     => 'cell',
-    			 	criteria => 'greater than',
-    			 	value    => "=D".($row+1)."-(D".($row+1)."-E".($row+1).")*0.2",
-    			 	format   => $format_Fcpk,
+    		{
+    			type     => 'cell',
+    		 	criteria => 'greater than',
+    		 	value    => "=D".($row+1)."-(D".($row+1)."-E".($row+1).")*0.2",
+    		 	format   => $format_Fcpk,
     			});
        		$workbook-> conditional_formatting($row, 6,
-    			{
-    				type     => 'cell',
-    			 	criteria => 'less than',
-    			 	value    => "=E".($row+1)."+(D".($row+1)."-E".($row+1).")*0.2",
-    			 	format   => $format_Fcpk,
+    		{
+    			type     => 'cell',
+    		 	criteria => 'less than',
+    		 	value    => "=E".($row+1)."+(D".($row+1)."-E".($row+1).")*0.2",
+    		 	format   => $format_Fcpk,
     			});
     		
        		$row++;
@@ -294,6 +314,7 @@ $log_counter++;
        	{
        		#print $headN, "\r";
        		print NLog $headN, "\r";
+       		push(@Titles, $headN);
        		$workbook-> write($row, $col, $headN, $format_item);								# 输出测试名，单项测试
 			$workbook-> write($row, 1, substr($line,4,3), $format_data);						# 输出TYPE
        		$workbook-> write($row, 2, substr($line,index($line,"\@LIM")+6,13), $format_data);  # 输出正常值
@@ -309,18 +330,18 @@ $log_counter++;
 			#Hli = 41.25-(41.25-28.05)*0.25
 			#Lli = 28.05+(41.25-28.05)*0.25
        		$workbook-> conditional_formatting($row, 5,
-    			{
-    				type     => 'cell',
-    			 	criteria => 'greater than',
-    			 	value    => "=D".($row+1)."-(D".($row+1)."-E".($row+1).")*0.2",
-    			 	format   => $format_Fcpk,
+    		{
+    			type     => 'cell',
+    		 	criteria => 'greater than',
+    		 	value    => "=D".($row+1)."-(D".($row+1)."-E".($row+1).")*0.2",
+    		 	format   => $format_Fcpk,
     			});
        		$workbook-> conditional_formatting($row, 6,
-    			{
-    				type     => 'cell',
-    			 	criteria => 'less than',
-    			 	value    => "=E".($row+1)."+(D".($row+1)."-E".($row+1).")*0.2",
-    			 	format   => $format_Fcpk,
+    		{
+    			type     => 'cell',
+    		 	criteria => 'less than',
+    		 	value    => "=E".($row+1)."+(D".($row+1)."-E".($row+1).")*0.2",
+    		 	format   => $format_Fcpk,
     			});
     		
        		$row++;
@@ -328,9 +349,10 @@ $log_counter++;
 
        	elsif ($line =~ "\@A-")        # Volts
        	{
-       		$subtitle = substr ($line, 24, rindex($line,"\{@LIM") - 24),"\n";
+       		$subtitle = substr ($line, 24, rindex($line,"\{\@LIM") - 24);
        		#print "\n".$headN."/".$subtitle; 
        		print NLog $headN."/".$subtitle, "\n";
+       		push(@Titles, $headN."/".$subtitle);
        		$workbook-> write($row, $col, $headN."/".$subtitle, $format_item);		# 输出测试名，多项测试
 			$workbook-> write($row, 1, substr($line,4,3), $format_data);  			# 输出TYPE
        		$workbook-> write($row, 3, $string[4], $format_data);
@@ -343,18 +365,18 @@ $log_counter++;
 			$workbook-> write_formula($row, 10, "=MIN((D".($row+1)."-H".($row+1)."),(H".($row+1)."-E".($row+1)."))/I".($row+1)."/3", $format_data);  #输出CPK
 
        		$workbook-> conditional_formatting($row, 5,
-    			{
-    				type     => 'cell',
-    			 	criteria => 'greater than',
-    			 	value    => "=D".($row+1)."-(D".($row+1)."-E".($row+1).")*0.2",
-    			 	format   => $format_Fcpk,
+    		{
+    			type     => 'cell',
+    		 	criteria => 'greater than',
+    		 	value    => "=D".($row+1)."-(D".($row+1)."-E".($row+1).")*0.2",
+    		 	format   => $format_Fcpk,
     			});
        		$workbook-> conditional_formatting($row, 6,
-    			{
-    				type     => 'cell',
-    			 	criteria => 'less than',
-    			 	value    => "=E".($row+1)."+(D".($row+1)."-E".($row+1).")*0.2",
-    			 	format   => $format_Fcpk,
+    		{
+    			type     => 'cell',
+    		 	criteria => 'less than',
+    		 	value    => "=E".($row+1)."+(D".($row+1)."-E".($row+1).")*0.2",
+    		 	format   => $format_Fcpk,
     			});
 			
        		$row++;
@@ -370,157 +392,196 @@ $log_counter++;
 close LogN;
 }
 
+print "\n   Scale: ",scalar @Titles,"\n";
+# print @Titles,"\n";
+
 ########################## create data ###################################################
+print "=> extracting data ... ","\n"; 
+
+my %matrix;
+my $value;
+
+%matrix = map { $_ => $Titles[$_] } 0..$#Titles;			# convert array to hash
+# my @keys = keys %matrix;
+# my $size = @keys;
+# print "2 - 哈希大小: $size\n";
+
+foreach my $key (values %matrix) {$matrix{$key} = "";}		# initialize values
+# my @keys = keys %matrix;
+# my $size = @keys;
+# print "2 - 哈希大小: $size\n";
+# 
+# foreach my $key (keys %matrix) {
+#     print $matrix{$key}, "\n";
+# }
+
+
 $row = 0;
-$items = 0;
-print "\n","=> extracting data ... ","\n"; 
-
-open (Titles, "<head");
-@Titles = <Titles>;
-while($title = <@Titles>)	# Items
+$col = 1;
+@analogfiles = <*.log>;
+foreach my $analogfiles (@analogfiles)		#log
 {
-	$col = 11;	# 初始化列数
-	$row++;
-	chomp $title;
-	print "extracting $title\n";
-	@analogfiles = <*.log>;
-		foreach $analogfiles (@analogfiles)		#log
+	my $counter = 1;
+	open LogN,"<$analogfiles";
+
+	if ($board eq 'single'){
+	while($line = <LogN>)	
+    {
+    	chomp $line;
+    	next if (substr($line,0,3) ne "\{\@B");
+    	next if (substr($line,0,5) eq "\{\@RPT");
+    	last if (eof);
+    	#print $line,"\n";
+    	#print $title,"\n";
+    	#print substr($line,8,length($line)-11),"\n";
+		my @string = split('\|', $line);
+		next if scalar @string < 3;
+		next if ($string[2] ne "00");
+		#print $string[1];
+
+		if ($string[0] eq "\{\@BTEST" and $counter == 1)	# 写SN到Summary中
 		{
-		$counter = 1;
-		open LogN,"<$analogfiles";
-			if ($board eq 'single'){
-			while($line = <LogN>)	
-		    {
-		    	chomp $line;
-		    	#print substr($line,8,length($line)-11)."\n";
-				if ($line =~ "\@BTEST" and $items == 0 and $counter == 1)	# 写SN到Summary中
-				{
-				#$summary-> write($col-10, 0, substr($line,8,$SNlength), $format_item);
-				#if(substr($line,9+$SNlength,2) eq "00"){$summary-> write($col-10, 1, "Pass", $format_Pcpk);}
-				#else{$summary-> write($col-10, 1, "Fail", $format_Fcpk);}
-
-				@result = split('\|', $line);  # print "$length[1]\n";  print "$length[2]\n";
-				$summary-> write($col-10, 0, $result[1], $format_item);
-				if($result[2] eq "00"){$summary-> write($col-10, 1, "Pass", $format_Pcpk);}
-				else{$summary-> write($col-10, 1, "Fail", $format_Fcpk);}
-				$summary-> write($col-10, 2, $result[4], $format_data);
-
-				#print substr($line,9+$SNlength,2)."\n";
-				#print "$items,###,$counter"."\n";
-				$counter++;
-					}
-		    	if (substr($line,8,length($line)-11) eq $title and substr($line,rindex($line,"\|")+1,2) eq "00")		#单项测试数据
-					{
-						while($line = <LogN>)
-						{
-							chomp $line;
-							if ($line =~ "\@A-")	#result line matching
-								{
-								$workbook-> write($row, $col, substr ($line,10,13), $format_data); 
-								#print substr($line,10,13)."\n";
-								#$col++;
-								last;
-									}
-							}
-						}
-				elsif (substr($line,8,length($line)-11) eq substr($title,0,index($title,"\/")) and substr($line,rindex($line,"\|")+1,2) eq "00")		#多项测试数据
-					{
-						while($line = <LogN>)
-						{
-							chomp $line;
-							#print substr($title,index($title,"\/")+1,length($title)-index($title,"\/"))."\n";
-							#print substr($line,24,index($line,"\@LIM")-25)."\n";
-							if ($line =~ "\@A-"	and substr($title,index($title,"\/")+1,length($title)-index($title,"\/")) eq substr($line,24,index($line,"\@LIM")-25) )	#subname matching
-								{
-								$workbook-> write($row, $col, substr ($line,10,13), $format_data); 
-								#print substr($line,10,13)."\n";
-								#$col++;
-								last;
-									}
-							if($line eq "\}"){goto Next1;}
-							}
-						}
-
-				elsif(eof){$col++; last; }
-
-				Next1:}}
-
-			if ($board eq 'panel'){
-			while($line = <LogN>)	
-		    {
-		    	chomp $line;
-		    	#print substr($title,index($title,"\%")+1,length($title)-index($title,"\%"))."\n";
-		    	#print substr($line,index($line,"\%")+1,length($line)-index($line,"\%")-4)."\n";
-				#print "#"."\n";
-				if ($line =~ "\@BTEST" and $items == 0 and $counter == 1)	# 写SN到Summary中
-				{
-				#$summary-> write($col-10, 0, substr($line,8,$SNlength), $format_item);
-				#if(substr($line,9+$SNlength,2) eq "00"){$summary-> write($col-10, 1, "Pass", $format_Pcpk);}
-				#else{$summary-> write($col-10, 1, "Fail", $format_Fcpk);}
-
-				@result = split('\|', $line);  # print "$length[1]\n";  print "$length[2]\n";
-				$summary-> write($col-10, 0, $result[1], $format_item);
-				if($result[2] eq "00"){$summary-> write($col-10, 1, "Pass", $format_Pcpk);}
-				else{$summary-> write($col-10, 1, "Fail", $format_Fcpk);}
-				$summary-> write($col-10, 2, $result[4], $format_data);
-
-				#print substr($line,9+$SNlength,2)."\n";
-				#print "$items,###,$counter"."\n";
-				$counter++;
-					}
-
-				if (substr($line,index($line,"\%")+1,length($line)-index($line,"\%")-4) eq substr($title,index($title,"\%")+1,length($title)-index($title,"\%")) and substr($line,rindex($line,"\|")+1,2) eq "00")		#单项测试数据
-					{
-					#print substr($line,index($line,"\%")+1,length($line)-index($line,"\%")-4)."\n";
-					#print substr($title,index($title,"\%")+1,length($title)-index($title,"\%"))."\n";
-						while($line = <LogN>)
-						{
-							chomp $line;
-							if ($line =~ "\@A-")	#result line matching
-								{
-								#print $line."\n";
-								$workbook-> write($row, $col, substr ($line,10,13), $format_data); 
-								#print substr($line,10,13)."\n";
-								#$col++;
-								last;
-									}
-							}
-						}
-
-				elsif ($title =~ "\/" and substr($line,index($line,"\%")+1,length($line)-index($line,"\%")-4) eq substr($title,index($title,"\%")+1,rindex($title,"\/")-length($title)) and substr($line,rindex($line,"\|")+1,2) eq "00")		#多项测试数据
-					{
-					 #print substr($line,index($line,"\%")+1,length($line)-index($line,"\%")-4)."\n";
-					 #print substr($title,index($title,"\%")+1,rindex($title,"\/")-length($title))."\n";
-						while($line = <LogN>)
-						{
-							chomp $line;
-							if ($line =~ "\@A-"	and substr($title,index($title,"\/")+1,length($title)-index($title,"\/")) eq substr($line,24,index($line,"\@LIM")-25) )	#subname matching
-								{
-							#print $line."\n";
-								$workbook-> write($row, $col, substr ($line,10,13), $format_data); 
-								#print substr($line,10,13)."\n";
-								#$col++;
-								last;
-									}
-							if($line eq "\}"){goto Next2;}
-							}
-						}
-
-				elsif(eof){$col++; last; }
-
-				Next2:}}
-
-		close LogN,"<$analogfiles";
+			$summary-> write($col, 0, $string[1], $format_item);
+			if($string[2] eq "00"){$summary-> write($col, 1, "Pass", $format_Pcpk);}
+			else{$summary-> write($col, 1, "Fail", $format_Fcpk);}
+			$summary-> write($col, 2, $string[4], $format_data);
+			$counter++;
+			$col++;
 			}
-$items++;
+    	#elsif ($title !~ "\/" and $string[1] eq $title and $string[2] eq "00")		# 单项测试数据
+    	elsif (exists($matrix{$string[1]}))			# 单项测试数据
+		{
+			while($line = <LogN>)
+			{
+				chomp $line;
+				if ($line =~ "\@A-")	#result line matching
+				{
+					#print $line."\n";
+					$value = $matrix{$string[1]};
+					#print $value,"\n";
+					$matrix{$string[1]} = $value.substr ($line,10,13)."\t";
+					#$workbook-> write($row, $col, substr ($line,10,13), $format_data); 
+					last;
+					}
+				}
+			}
+		#elsif ($title =~ "\/" and $string[1] eq substr($title,0,index($title,"\/")) and $string[2] eq "00")		# 多项测试数据
+		else
+		{
+			while($line = <LogN>)
+			{
+				chomp $line;
+				last if ($line eq "\}");
+				last if (eof);
+				my @string1 = split('\|', $line);
+				#print "/".substr($string1[3],0,length($string1[3])-6),"\n";
+				if ($line =~ "\@A-"	and exists($matrix{$string[1]."/".substr($string1[3],0,length($string1[3])-6)}))	#subname matching
+				{
+					#print $line."\n";
+					$value = $matrix{$string[1]."/".substr($string1[3],0,length($string1[3])-6)};
+					#print $value,"\n";
+					$matrix{$string[1]."/".substr($string1[3],0,length($string1[3])-6)} = $value.substr ($line,10,13)."\t";
+					#$workbook-> write($row, $col, substr ($line,10,13), $format_data); 
+					}
+				}
+			}
+		}
 	}
 
-close Title;
-unlink "head";
-$log_report->close();
-print "\n	>>> Done.....\n\n";
-system 'pause';
+	if ($board eq 'panel'){
+	while($line = <LogN>)	
+    {
+    	chomp $line;
+    	next if (substr($line,0,3) ne "\{\@B");
+    	next if (substr($line,0,5) eq "\{\@RPT");
+    	last if (eof);
+    	
+    	#print $line,"\n";
+    	my @string = split('\|', $line);
+    	next if scalar @string < 3;
+    	next if ($string[2] ne "00");
+    	$string[1] = substr($string[1],index($string[1],"%")+1);
+		#print $string[1],"\n";
 
-exit;
+		if ($string[0] eq "\{\@BTEST" and $counter == 1)	# 写SN到Summary中
+		{
+			$summary-> write($col, 0, $string[1], $format_item);
+			if($string[2] eq "00"){$summary-> write($col, 1, "Pass", $format_Pcpk);}
+			else{$summary-> write($col, 1, "Fail", $format_Fcpk);}
+			$summary-> write($col, 2, $string[4], $format_data);
+			$counter++;
+			$col++;
+			}
+
+		#elsif ($title !~ "\/" and substr($string[1],index($string[1],"%")+1) eq $title and $string[2] eq "00")	# 单项测试数据
+		elsif (exists($matrix{$string[1]}))	# 单项测试数据
+		{
+			while($line = <LogN>)
+			{
+				chomp $line;
+				if ($line =~ "\@A-")	#result line matching
+				{
+					#print $line."\n";
+					$value = $matrix{$string[1]};
+					#print $value,"\n";
+					$matrix{$string[1]} = $value.substr ($line,10,13)."\t";
+					#$workbook-> write($row, $col, substr ($line,10,13), $format_data); 
+					#print substr($line,10,13)."\n";
+					last;
+					}
+				}
+			}
+		#elsif ($title =~ "\/" and substr($string[1], index($string[1],"%")+1) eq substr($title,0,index($title,"\/")) and $string[2] eq "00")	# 多项测试数据
+		else
+		{
+			while($line = <LogN>)
+			{
+				chomp $line;
+				last if ($line eq "\}");
+				last if (eof);
+				my @string1 = split('\|', $line);
+				#print "/".substr($string1[3],0,length($string1[3])-6),"\n";
+				if ($line =~ "\@A-"	and exists($matrix{$string[1]."/".substr($string1[3],0,length($string1[3])-6)}))	#subname matching
+				{
+					#print $line."\n";
+					$value = $matrix{$string[1]."/".substr($string1[3],0,length($string1[3])-6)};
+					#print $value,"\n";
+					$matrix{$string[1]."/".substr($string1[3],0,length($string1[3])-6)} = $value.substr ($line,10,13)."\t";
+					#$workbook-> write($row, $col, substr ($line,10,13), $format_data); 
+					}
+				}
+			}
+		}
+	}
+	close LogN;
+	}
+
+# print "PPDCIN_AON/OUTPUT value is: $matrix{'PPDCIN_AON/OUTPUT'} \n";
+# print "rn304 value is: $matrix{'rn304'} \n";
+# 
+# my @group = split("\t",$matrix{'PPDCIN_AON/OUTPUT'});
+# $size = @group;
+# print "z - 哈希大小: $size\n";
+
+# $workbook-> write_row (2, 11, \@group, $format_data); 
+
+
+foreach my $i (0..@Titles-1)		# output array to Excel.
+{
+# 	print $Titles[$i],"\n";
+	my @group = split("\t",$matrix{$Titles[$i]});
+	$workbook-> write_row ($i+1, 11, \@group, $format_data); 
+	}
+
+# unlink "head";
+$log_report->close();
+
+my $end_time = time();
+my $duration = $end_time - $start_time;
+printf "	runtime: %.4f Sec\n", $duration;
+
+print "\n	>>> Done .....\n\n";
+#system 'pause';
+
 
 
