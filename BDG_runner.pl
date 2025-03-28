@@ -164,14 +164,15 @@ foreach my $analogfiles (@analogfiles)
     	{
     		chomp $line;
     		my @string = split('\|', $line);
-			if ($line =~ "\@BTEST")
-    		{
-    			#print $string[12]."\n";
-    			if ($string[12] eq "1"){$board = "single";}
-    			else {$board = "panel";}
-    			print $board;
-				print "\n".$analogfiles;
-    			}
+    		
+		if ($line =~ "\@BTEST")
+    	{
+    		#print $string[12]."\n";
+    		if ($string[12] eq "1"){$board = "single";}
+    		else {$board = "panel";}
+    		print $board;
+			print "\n".$analogfiles;
+    		}
 
     	elsif ($line =~ "\@BLOCK")
        	{
@@ -190,6 +191,7 @@ foreach my $analogfiles (@analogfiles)
        		push(@Titles, $headN);
        		$workbook-> write($row, $col, $headN, $format_item);					#输出测试名，单项测试
 			$workbook-> write($row, 1, substr($line,4,3), $format_data);			#输出TYPE
+    		$workbook-> write($row, 2, "-", $format_data);
        		$workbook-> write($row, 3, $string[3], $format_data);					#输出上限值
        		$workbook-> write($row, 4, substr($string[4],0,13), $format_data);		#输出下限值
 			$workbook-> write_formula($row, 5, "=MAX(L".($row+1).":AAA".($row+1).")", $format_data);  #输出Max
@@ -215,6 +217,7 @@ foreach my $analogfiles (@analogfiles)
        		push(@Titles, $headN);
        		$workbook-> write($row, $col, $headN, $format_item);					# 输出测试名，单项测试
 			$workbook-> write($row, 1, substr($line,4,3), $format_data);			# 输出TYPE
+    		$workbook-> write($row, 2, "-", $format_data);
        		$workbook-> write($row, 3, $string[3], $format_data);
        		$workbook-> write($row, 4, substr($string[4],0,13), $format_data);
 			$workbook-> write_formula($row, 5, "=MAX(L".($row+1).":AAA".($row+1).")", $format_data);  # 输出Max
@@ -228,7 +231,7 @@ foreach my $analogfiles (@analogfiles)
     		{
     			type     => 'cell',
     		 	criteria => 'less than',
-    		 	value    => "=F".($row+1)."+(D".($row+1)."-E".($row+1).")*0.2",
+    		 	value    => "=F".($row+1)."+(D".($row+1)."-E".($row+1).")*0.15",
     		 	format   => $format_Fcpk,
     			});
 
@@ -236,7 +239,7 @@ foreach my $analogfiles (@analogfiles)
     		{
     			type     => 'cell',
     		 	criteria => 'greater than',
-    		 	value    => "=G".($row+1)."-(D".($row+1)."-E".($row+1).")*0.2",
+    		 	value    => "=G".($row+1)."-(D".($row+1)."-E".($row+1).")*0.15",
     		 	format   => $format_Fcpk,
     			});
     		
@@ -250,6 +253,7 @@ foreach my $analogfiles (@analogfiles)
        		push(@Titles, $headN."/".$subtitle);
        		$workbook-> write($row, $col, $headN."/".$subtitle, $format_item);		# 输出测试名，多项测试
 			$workbook-> write($row, 1, substr($line,4,3), $format_data);  			# 输出TYPE
+    		$workbook-> write($row, 2, "-", $format_data);
        		$workbook-> write($row, 3, $string[4], $format_data);
        		$workbook-> write($row, 4, substr($string[5],0,13), $format_data);
 			$workbook-> write_formula($row, 5, "=MAX(L".($row+1).":AAA".($row+1).")", $format_data);  # 输出Max
@@ -263,7 +267,7 @@ foreach my $analogfiles (@analogfiles)
     		{
     			type     => 'cell',
     		 	criteria => 'less than',
-    		 	value    => "=F".($row+1)."+(D".($row+1)."-E".($row+1).")*0.2",
+    		 	value    => "=F".($row+1)."+(D".($row+1)."-E".($row+1).")*0.15",
     		 	format   => $format_Fcpk,
     			});
 
@@ -271,7 +275,7 @@ foreach my $analogfiles (@analogfiles)
     		{
     			type     => 'cell',
     		 	criteria => 'greater than',
-    		 	value    => "=G".($row+1)."-(D".($row+1)."-E".($row+1).")*0.2",
+    		 	value    => "=G".($row+1)."-(D".($row+1)."-E".($row+1).")*0.15",
     		 	format   => $format_Fcpk,
     			});
     		
@@ -284,6 +288,7 @@ foreach my $analogfiles (@analogfiles)
        		push(@Titles, $headN);
        		$workbook-> write($row, $col, $headN, $format_item);					# 输出测试名，单项测试
 			$workbook-> write($row, 1, substr($line,4,3), $format_data);			# 输出TYPE
+    		$workbook-> write($row, 2, "-", $format_data);
        		$workbook-> write($row, 3, $string[3], $format_data);
        		$workbook-> write($row, 4, substr($string[4],0,13), $format_data);
 			$workbook-> write_formula($row, 5, "=MAX(L".($row+1).":AAA".($row+1).")", $format_data);  # 输出Max
@@ -297,14 +302,14 @@ foreach my $analogfiles (@analogfiles)
     		{
     			type     => 'cell',
     		 	criteria => 'less than',
-    		 	value    => "=F".($row+1)."+(D".($row+1)."-E".($row+1).")*0.2",
+    		 	value    => "=F".($row+1)."+(D".($row+1)."-E".($row+1).")*0.15",
     		 	format   => $format_Fcpk,
     			});
        		$workbook-> conditional_formatting($row, 4,
     		{
     			type     => 'cell',
     		 	criteria => 'greater than',
-    		 	value    => "=G".($row+1)."-(D".($row+1)."-E".($row+1).")*0.2",
+    		 	value    => "=G".($row+1)."-(D".($row+1)."-E".($row+1).")*0.15",
     		 	format   => $format_Fcpk,
     			});
     		
@@ -333,14 +338,14 @@ foreach my $analogfiles (@analogfiles)
     		{
     			type     => 'cell',
     		 	criteria => 'less than',
-    		 	value    => "=F".($row+1)."+(D".($row+1)."-E".($row+1).")*0.2",
+    		 	value    => "=F".($row+1)."+(D".($row+1)."-E".($row+1).")*0.15",
     		 	format   => $format_Fcpk,
     			});
        		$workbook-> conditional_formatting($row, 4,
     		{
     			type     => 'cell',
     		 	criteria => 'greater than',
-    		 	value    => "=G".($row+1)."-(D".($row+1)."-E".($row+1).")*0.2",
+    		 	value    => "=G".($row+1)."-(D".($row+1)."-E".($row+1).")*0.15",
     		 	format   => $format_Fcpk,
     			});
     		
@@ -355,6 +360,7 @@ foreach my $analogfiles (@analogfiles)
        		push(@Titles, $headN."/".$subtitle);
        		$workbook-> write($row, $col, $headN."/".$subtitle, $format_item);		# 输出测试名，多项测试
 			$workbook-> write($row, 1, substr($line,4,3), $format_data);  			# 输出TYPE
+    		$workbook-> write($row, 2, "-", $format_data);
        		$workbook-> write($row, 3, $string[4], $format_data);
        		$workbook-> write($row, 4, substr($string[5],0,13), $format_data);
 			$workbook-> write_formula($row, 5, "=MAX(L".($row+1).":AAA".($row+1).")", $format_data);  # 输出Max
@@ -368,14 +374,14 @@ foreach my $analogfiles (@analogfiles)
     		{
     			type     => 'cell',
     		 	criteria => 'less than',
-    		 	value    => "=F".($row+1)."+(D".($row+1)."-E".($row+1).")*0.2",
+    		 	value    => "=F".($row+1)."+(D".($row+1)."-E".($row+1).")*0.15",
     		 	format   => $format_Fcpk,
     			});
        		$workbook-> conditional_formatting($row, 4,
     		{
     			type     => 'cell',
     		 	criteria => 'greater than',
-    		 	value    => "=G".($row+1)."-(D".($row+1)."-E".($row+1).")*0.2",
+    		 	value    => "=G".($row+1)."-(D".($row+1)."-E".($row+1).")*0.15",
     		 	format   => $format_Fcpk,
     			});
 			
