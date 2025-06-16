@@ -2,10 +2,10 @@
 #################################################################
 ## This script is used to calculate CPK base on 3070 log file.
 ## Author: noon_chen@apple.com
-## V3.2
+## V3.9
 #################################################################
 
-print "\n\tCPK calculator base on i3070 log (v3.2)\n";
+print "\n\tCPK calculator base on i3070 log (v3.9)\n";
 
 use strict;
 use warnings;
@@ -37,7 +37,6 @@ $workbook->set_header('&CUpdated at &D &T');	# 设置页脚
 $workbook->set_landscape();				# 设置横排格式
 $log_report->set_size(1680, 1180);		# 设置初始窗口尺寸
 
-
 #新建一个格式
 my $format_item = $log_report-> add_format(bold=>1, align=>'left', border=>1, size=>12, bg_color=>'cyan');
 my $format_head = $log_report-> add_format(bold=>1, align=>'vcenter', border=>1, size=>12, bg_color=>'lime');
@@ -46,9 +45,10 @@ my $format_Fcpk = $log_report-> add_format(align=>'center', border=>1, bg_color=
 my $format_Pcpk = $log_report-> add_format(bold=>0, align=>'center', border=>1, bg_color=>'lime');
 my $format_Hcpk = $log_report-> add_format(bold=>0, align=>'center', border=>1, bg_color=>'yellow');
 my $format_FPY  = $log_report-> add_format(align=>'center', border=>1, num_format=> '10');
+my $format_blak = $log_report-> add_format(align=>'center', border=>1, bg_color=>'silver');
 
 #写入文件头
-my $row = 0; my $col = 0;
+our $row = 0; our $col = 0;
 $summary-> write($row, $col, 'SN', $format_head);
 $row = 0; $col = 1;
 $summary-> write($row, $col, 'Results', $format_head);
@@ -131,10 +131,16 @@ $workbook-> conditional_formatting('J2:K9999',
  	format   => $format_Fcpk,
 	});
 
-$workbook-> write_formula(1, 5, "=MAX(L2:AAA2)", $format_data);  		#输出Max
-$workbook-> write_formula(1, 6, "=MIN(L2:AAA2)", $format_data);			#输出Min
-$workbook-> write_formula(1, 7, "=AVERAGE(L2:AAA2)", $format_data);  	#输出Average
-$workbook-> write_formula(1, 8, "=STDEV(L2:AAA2)", $format_data);  		#输出标准差
+$workbook-> conditional_formatting('A1:FFF9999',
+{
+	type     => 'blanks',
+ 	format   => $format_blak,
+	});
+
+$workbook-> write_formula(1, 5, "=MAX(L2:FFF2)", $format_data);  		#输出Max
+$workbook-> write_formula(1, 6, "=MIN(L2:FFF2)", $format_data);			#输出Min
+$workbook-> write_formula(1, 7, "=AVERAGE(L2:FFF2)", $format_data);  	#输出Average
+$workbook-> write_formula(1, 8, "=STDEV(L2:FFF2)", $format_data);  		#输出标准差
 $workbook-> write_formula(1, 9, "=IF(I2>0,(D2-E2)/6/I2)", $format_data);  #输出CP
 $workbook-> write_formula(1, 10, "=MIN((D2-H2),(H2-E2))/I2/3", $format_data);  #输出CPK
 
@@ -195,11 +201,11 @@ foreach my $analogfiles (@analogfiles)
     		$workbook-> write($row, 2, "-", $format_data);
        		$workbook-> write($row, 3, $string[3], $format_data);					#输出上限值
        		$workbook-> write($row, 4, substr($string[4],0,13), $format_data);		#输出下限值
-			$DevLim{$headN} = $string[3].' / '.substr($string[4],0,13).' / '.'';
-			$workbook-> write_formula($row, 5, "=MAX(L".($row+1).":AAA".($row+1).")", $format_data);  #输出Max
-			$workbook-> write_formula($row, 6, "=MIN(L".($row+1).":AAA".($row+1).")", $format_data);  #输出Min
-			$workbook-> write_formula($row, 7, "=AVERAGE(L".($row+1).":AAA".($row+1).")", $format_data);  #输出Average
-			$workbook-> write_formula($row, 8, "=STDEV(L".($row+1).":AAA".($row+1).")", $format_data);  #输出标准差
+			$DevLim{$headN} = $string[3].' / '.substr($string[4],0,13).' / '.'-'.' / '.substr($line,4,3);
+			$workbook-> write_formula($row, 5, "=MAX(L".($row+1).":FFF".($row+1).")", $format_data);  #输出Max
+			$workbook-> write_formula($row, 6, "=MIN(L".($row+1).":FFF".($row+1).")", $format_data);  #输出Min
+			$workbook-> write_formula($row, 7, "=AVERAGE(L".($row+1).":FFF".($row+1).")", $format_data);  #输出Average
+			$workbook-> write_formula($row, 8, "=STDEV(L".($row+1).":FFF".($row+1).")", $format_data);  #输出标准差
 			$workbook-> write_formula($row, 9, "=IF(I".($row+1).">0,(D".($row+1)."-E".($row+1).")/6/I".($row+1).")", $format_data);  #输出CP
 			$workbook-> write_formula($row, 10, "=MIN((D".($row+1)."-H".($row+1)."),(H".($row+1)."-E".($row+1)."))/I".($row+1)."/3", $format_data);  #输出CPK
 
@@ -222,11 +228,11 @@ foreach my $analogfiles (@analogfiles)
     		$workbook-> write($row, 2, "-", $format_data);
        		$workbook-> write($row, 3, $string[3], $format_data);
        		$workbook-> write($row, 4, substr($string[4],0,13), $format_data);
-			$DevLim{$headN} = $string[3].' / '.substr($string[4],0,13).' / '.'';
-			$workbook-> write_formula($row, 5, "=MAX(L".($row+1).":AAA".($row+1).")", $format_data);  # 输出Max
-			$workbook-> write_formula($row, 6, "=MIN(L".($row+1).":AAA".($row+1).")", $format_data);  # 输出Min
-			$workbook-> write_formula($row, 7, "=AVERAGE(L".($row+1).":AAA".($row+1).")", $format_data);  # 输出Average
-			$workbook-> write_formula($row, 8, "=STDEV(L".($row+1).":AAA".($row+1).")", $format_data);  # 输出标准差
+			$DevLim{$headN} = $string[3].' / '.substr($string[4],0,13).' / '.'-'.' / '.substr($line,4,3);
+			$workbook-> write_formula($row, 5, "=MAX(L".($row+1).":FFF".($row+1).")", $format_data);  # 输出Max
+			$workbook-> write_formula($row, 6, "=MIN(L".($row+1).":FFF".($row+1).")", $format_data);  # 输出Min
+			$workbook-> write_formula($row, 7, "=AVERAGE(L".($row+1).":FFF".($row+1).")", $format_data);  # 输出Average
+			$workbook-> write_formula($row, 8, "=STDEV(L".($row+1).":FFF".($row+1).")", $format_data);  # 输出标准差
 			$workbook-> write_formula($row, 9, "=IF(I".($row+1).">0,(D".($row+1)."-E".($row+1).")/6/I".($row+1).")", $format_data);  #输出CP
 			$workbook-> write_formula($row, 10, "=MIN((D".($row+1)."-H".($row+1)."),(H".($row+1)."-E".($row+1)."))/I".($row+1)."/3", $format_data);  #输出CPK
 
@@ -259,11 +265,11 @@ foreach my $analogfiles (@analogfiles)
     		$workbook-> write($row, 2, "-", $format_data);
        		$workbook-> write($row, 3, $string[4], $format_data);
        		$workbook-> write($row, 4, substr($string[5],0,13), $format_data);
-			$DevLim{$headN."/".$subtitle} = $string[4].' / '.substr($string[5],0,13).' / '.'';
-			$workbook-> write_formula($row, 5, "=MAX(L".($row+1).":AAA".($row+1).")", $format_data);  # 输出Max
-			$workbook-> write_formula($row, 6, "=MIN(L".($row+1).":AAA".($row+1).")", $format_data);  # 输出Min
-			$workbook-> write_formula($row, 7, "=AVERAGE(L".($row+1).":AAA".($row+1).")", $format_data);  # 输出Average
-			$workbook-> write_formula($row, 8, "=STDEV(L".($row+1).":AAA".($row+1).")", $format_data);  # 输出标准差
+			$DevLim{$headN."/".$subtitle} = $string[4].' / '.substr($string[5],0,13).' / '.'-'.' / '.substr($line,4,3);
+			$workbook-> write_formula($row, 5, "=MAX(L".($row+1).":FFF".($row+1).")", $format_data);  # 输出Max
+			$workbook-> write_formula($row, 6, "=MIN(L".($row+1).":FFF".($row+1).")", $format_data);  # 输出Min
+			$workbook-> write_formula($row, 7, "=AVERAGE(L".($row+1).":FFF".($row+1).")", $format_data);  # 输出Average
+			$workbook-> write_formula($row, 8, "=STDEV(L".($row+1).":FFF".($row+1).")", $format_data);  # 输出标准差
 			$workbook-> write_formula($row, 9, "=IF(I".($row+1).">0,(D".($row+1)."-E".($row+1).")/6/I".($row+1).")", $format_data);  #输出CP
 			$workbook-> write_formula($row, 10, "=MIN((D".($row+1)."-H".($row+1)."),(H".($row+1)."-E".($row+1)."))/I".($row+1)."/3", $format_data);  #输出CPK
 
@@ -295,11 +301,11 @@ foreach my $analogfiles (@analogfiles)
     		$workbook-> write($row, 2, "-", $format_data);
        		$workbook-> write($row, 3, $string[3], $format_data);
        		$workbook-> write($row, 4, substr($string[4],0,13), $format_data);
-			$DevLim{$headN} = $string[3].' / '.substr($string[4],0,13).' / '.'';
-			$workbook-> write_formula($row, 5, "=MAX(L".($row+1).":AAA".($row+1).")", $format_data);  # 输出Max
-			$workbook-> write_formula($row, 6, "=MIN(L".($row+1).":AAA".($row+1).")", $format_data);  # 输出Min
-			$workbook-> write_formula($row, 7, "=AVERAGE(L".($row+1).":AAA".($row+1).")", $format_data);  # 输出Average
-			$workbook-> write_formula($row, 8, "=STDEV(L".($row+1).":AAA".($row+1).")", $format_data);  # 输出标准差
+			$DevLim{$headN} = $string[3].' / '.substr($string[4],0,13).' / '.'-'.' / '.substr($line,4,3);
+			$workbook-> write_formula($row, 5, "=MAX(L".($row+1).":FFF".($row+1).")", $format_data);  # 输出Max
+			$workbook-> write_formula($row, 6, "=MIN(L".($row+1).":FFF".($row+1).")", $format_data);  # 输出Min
+			$workbook-> write_formula($row, 7, "=AVERAGE(L".($row+1).":FFF".($row+1).")", $format_data);  # 输出Average
+			$workbook-> write_formula($row, 8, "=STDEV(L".($row+1).":FFF".($row+1).")", $format_data);  # 输出标准差
 			$workbook-> write_formula($row, 9, "=IF(I".($row+1).">0,(D".($row+1)."-E".($row+1).")/6/I".($row+1).")", $format_data);  #输出CP
 			$workbook-> write_formula($row, 10, "=MIN((D".($row+1)."-H".($row+1)."),(H".($row+1)."-E".($row+1)."))/I".($row+1)."/3", $format_data);  #输出CPK
 
@@ -330,11 +336,11 @@ foreach my $analogfiles (@analogfiles)
        		$workbook-> write($row, 2, substr($line,index($line,"\@LIM")+6,13), $format_data);  # 输出正常值
        		$workbook-> write($row, 3, $string[4], $format_data);
        		$workbook-> write($row, 4, substr($string[5],0,13), $format_data);
-			$DevLim{$headN} = $string[4].' / '.substr($string[5],0,13).' / '.substr($line,index($line,"\@LIM")+6,13);
-			$workbook-> write_formula($row, 5, "=MAX(L".($row+1).":AAA".($row+1).")", $format_data);  # 输出Max
-			$workbook-> write_formula($row, 6, "=MIN(L".($row+1).":AAA".($row+1).")", $format_data);  # 输出Min
-			$workbook-> write_formula($row, 7, "=AVERAGE(L".($row+1).":AAA".($row+1).")", $format_data);  # 输出Average
-			$workbook-> write_formula($row, 8, "=STDEV(L".($row+1).":AAA".($row+1).")", $format_data);  # 输出标准差
+			$DevLim{$headN} = $string[4].' / '.substr($string[5],0,13).' / '.substr($line,index($line,"\@LIM")+6,13).' / '.substr($line,4,3);
+			$workbook-> write_formula($row, 5, "=MAX(L".($row+1).":FFF".($row+1).")", $format_data);  # 输出Max
+			$workbook-> write_formula($row, 6, "=MIN(L".($row+1).":FFF".($row+1).")", $format_data);  # 输出Min
+			$workbook-> write_formula($row, 7, "=AVERAGE(L".($row+1).":FFF".($row+1).")", $format_data);  # 输出Average
+			$workbook-> write_formula($row, 8, "=STDEV(L".($row+1).":FFF".($row+1).")", $format_data);  # 输出标准差
 			$workbook-> write_formula($row, 9, "=IF(I".($row+1).">0,(D".($row+1)."-E".($row+1).")/6/I".($row+1).")", $format_data);  #输出CP
 			$workbook-> write_formula($row, 10, "=MIN((D".($row+1)."-H".($row+1)."),(H".($row+1)."-E".($row+1)."))/I".($row+1)."/3", $format_data);  #输出CPK
 
@@ -369,11 +375,11 @@ foreach my $analogfiles (@analogfiles)
     		$workbook-> write($row, 2, "-", $format_data);
        		$workbook-> write($row, 3, $string[4], $format_data);
        		$workbook-> write($row, 4, substr($string[5],0,13), $format_data);
-			$DevLim{$headN."/".$subtitle} = $string[4].' / '.substr($string[5],0,13).' / '.'';
-			$workbook-> write_formula($row, 5, "=MAX(L".($row+1).":AAA".($row+1).")", $format_data);  # 输出Max
-			$workbook-> write_formula($row, 6, "=MIN(L".($row+1).":AAA".($row+1).")", $format_data);  # 输出Min
-			$workbook-> write_formula($row, 7, "=AVERAGE(L".($row+1).":AAA".($row+1).")", $format_data);  # 输出Average
-			$workbook-> write_formula($row, 8, "=STDEV(L".($row+1).":AAA".($row+1).")", $format_data);  # 输出标准差
+			$DevLim{$headN."/".$subtitle} = $string[4].' / '.substr($string[5],0,13).' / '.'-'.' / '.substr($line,4,3);
+			$workbook-> write_formula($row, 5, "=MAX(L".($row+1).":FFF".($row+1).")", $format_data);  # 输出Max
+			$workbook-> write_formula($row, 6, "=MIN(L".($row+1).":FFF".($row+1).")", $format_data);  # 输出Min
+			$workbook-> write_formula($row, 7, "=AVERAGE(L".($row+1).":FFF".($row+1).")", $format_data);  # 输出Average
+			$workbook-> write_formula($row, 8, "=STDEV(L".($row+1).":FFF".($row+1).")", $format_data);  # 输出标准差
 			$workbook-> write_formula($row, 9, "=IF(I".($row+1).">0,(D".($row+1)."-E".($row+1).")/6/I".($row+1).")", $format_data);  #输出CP
 			$workbook-> write_formula($row, 10, "=MIN((D".($row+1)."-H".($row+1)."),(H".($row+1)."-E".($row+1)."))/I".($row+1)."/3", $format_data);  #输出CPK
 
@@ -415,8 +421,9 @@ print "\n   Scale: ",scalar @Titles,"\n";
 ########################## create data ###################################################
 print "=> extracting data ... ","\n"; 
 
-my %matrix;
-my $value;
+our %matrix;
+our $value;
+our $counter;
 
 %matrix = map { $_ => $Titles[$_] } 0..$#Titles;			# convert array to hash
 # my @keys = keys %matrix;
@@ -437,26 +444,17 @@ $col = 1;
 @analogfiles = <*.log>;
 foreach my $analogfiles (@analogfiles)		#log
 {
-	my $counter = 1;
+	$counter = 1;
 	open LogN,"<$analogfiles" or warn "\t!!! Failed to open $analogfiles file: $!.\n";
 	if ($! eq "No such file or directory"){next;}
+	foreach my $key (keys %matrix) { $matrix{$key} = $matrix{$key}."\t";}		# append default 'tab' for each items.
 
 	if ($board eq 'single'){
 	while($line = <LogN>)	
     {
     	chomp $line;
-    	next if (substr($line,0,3) ne "\{\@B");
-    	next if (substr($line,0,5) eq "\{\@RPT");
-    	last if (eof);
-    	#print $line,"\n";
-    	#print $title,"\n";
-    	#print substr($line,8,length($line)-11),"\n";
-		my @string = split('\|', $line);
-		next if scalar @string < 3;
-		next if ($string[2] ne "00");
-		#print $string[1];
-
-		if ($string[0] eq "\{\@BTEST" and $counter == 1)	# 写SN到Summary中
+    	my @string = split('\|', $line);
+		if ($string[0] eq '{@BTEST' and $counter == 1)	# 写SN到Summary中
 		{
 			$summary-> write($col, 0, $string[1], $format_item);
 			if($string[2] eq "00"){$summary-> write($col, 1, "Pass", $format_Pcpk);}
@@ -465,20 +463,70 @@ foreach my $analogfiles (@analogfiles)		#log
 			$counter++;
 			$col++;
 			}
-    	#elsif ($title !~ "\/" and $string[1] eq $title and $string[2] eq "00")		# 单项测试数据
-    	elsif (exists($matrix{$string[1]}))			# 单项测试数据
+    	next unless (substr($line,0,7) eq '{@BLOCK');
+
+		my $lines = <LogN>;
+		chomp $lines;
+		my @lists = split('\|', $lines);
+
+    	if (exists($matrix{$string[1]}))			# 单项测试数据
 		{
+			if ($lines =~ '@A-')	#result line matching
+			{
+				#print $lines."\n";
+				$value = $matrix{$string[1]};
+				#print $value,"\n";
+				$value =~ s/\t$//;					# clear out appended 'tab' when found data.
+				$matrix{$string[1]} = $value.substr ($lines,10,13)."\t";
+				}
+			}
+		elsif (not exists($matrix{$string[1]}) and substr($lists[3],-4) ne 'LIM2' and $lines =~ '@A-')		# 新增单项测试数据
+		{
+			#print $string[1],"	",substr($lines,2,5),"	",$lines,"\n";
+			if (substr($lines,2,5) =~ "(A-RES|A-CAP|A-IND)"){push(@Titles, $string[1]); $DevLim{$string[1]} = $lists[4].' / '.substr($lists[5],0,-2).' / '.$lists[3].' / '.substr($lines,4,3); $matrix{$string[1]} = "\t" x ($col-2).substr ($lines,10,13)."\t";}	#H-L-N
+			if (substr($lines,2,5) =~ "(A-JUM|A-DIO)" and scalar @lists eq 5){push(@Titles, $string[1]); $DevLim{$string[1]} = $lists[3].' / '.substr($lists[4],0,-2).' / '.'-'.' / '.substr($lines,4,3); $matrix{$string[1]} = "\t" x ($col-2).substr ($lines,10,13)."\t";}
+			}
+		elsif (scalar @lists == 6 and exists($matrix{$string[1].'/'.substr($lists[3],0,-6)}))		# 多项测试名
+		{
+			#print $string[1].'/'.substr($lists[3],0,-6),"	",substr ($lines,10,13),"	",$lines,"\n";
+			$value = $matrix{$string[1].'/'.substr($lists[3],0,-6)};
+			$value =~ s/\t$//;
+			$matrix{$string[1].'/'.substr($lists[3],0,-6)} = $value.substr ($lines,10,13)."\t";
 			while($line = <LogN>)
 			{
 				chomp $line;
-				if ($line =~ "\@A-")	#result line matching
+				last if ($line !~ '{@A-');
+				last if (eof);
+				#print $line,"\n";
+				my @string1 = split('\|', $line);
+				#print $string[1]."/".substr($string1[3],0,length($string1[3])-6),"\n";
+				if (scalar @string1 == 6 and exists($matrix{$string[1].'/'.substr($string1[3],0,-6)}))
 				{
-					#print $line."\n";
-					$value = $matrix{$string[1]};
-					#print $value,"\n";
-					$matrix{$string[1]} = $value.substr ($line,10,13)."\t";
-					#$workbook-> write($row, $col, substr ($line,10,13), $format_data); 
-					last;
+					$value = $matrix{$string[1].'/'.substr($string1[3],0,-6)};
+					$value =~ s/\t$//;
+					$matrix{$string[1].'/'.substr($string1[3],0,-6)} = $value.substr ($line,10,13)."\t";
+					}
+				}
+			}
+		elsif (scalar @lists == 6 and not exists($matrix{$string[1].'/'.substr($lists[3],0,-6)}))	# 新增多项测试名
+		{
+			#print $string[1].'/'.substr($lists[3],0,-6),"	",substr($lines,2,5),"	",$lines,"\n";
+			push(@Titles, $string[1].'/'.substr($lists[3],0,-6));
+			$DevLim{$string[1].'/'.substr($lists[3],0,-6)} = $lists[4].' / '.substr($lists[5],0,-2).' / '.'-'.' / '.substr($lines,4,3);
+			$matrix{$string[1].'/'.substr($lists[3],0,-6)} = "\t" x ($col-2).substr ($lines,10,13)."\t";
+			while($line = <LogN>)
+			{
+				chomp $line;
+				last if ($line !~ '{@A-');
+				last if (eof);
+				#print $line,"\n";
+				my @string1 = split('\|', $line);
+				#print $string[1]."/".substr($string1[3],0,length($string1[3])-6),"	",$line,"\n";
+				if (scalar @string1 == 6 and not exists($matrix{$string[1].'/'.substr($string1[3],0,-6)}))
+				{
+					push(@Titles, $string[1].'/'.substr($string1[3],0,-6));
+					$DevLim{$string[1].'/'.substr($string1[3],0,-6)} = $string1[4].' / '.substr($string1[5],0,-2).' / '.'-'.' / '.substr($line,4,3);
+					$matrix{$string[1].'/'.substr($string1[3],0,-6)} = "\t" x ($col-2).substr ($line,10,13)."\t";
 					}
 				}
 			}
@@ -491,13 +539,12 @@ foreach my $analogfiles (@analogfiles)		#log
 				last if (eof);
 				my @string1 = split('\|', $line);
 				#print "/".substr($string1[3],0,length($string1[3])-6),"\n";
-				if ($line =~ "\@A-"	and exists($matrix{$string[1]."/".substr($string1[3],0,length($string1[3])-6)}))	#subname matching
+				if ($line =~ '@A-'	and exists($matrix{$string[1]."/".substr($string1[3],0,length($string1[3])-6)}))	#subname matching
 				{
 					#print $line."\n";
 					$value = $matrix{$string[1]."/".substr($string1[3],0,length($string1[3])-6)};
 					#print $value,"\n";
 					$matrix{$string[1]."/".substr($string1[3],0,length($string1[3])-6)} = $value.substr ($line,10,13)."\t";
-					#$workbook-> write($row, $col, substr ($line,10,13), $format_data); 
 					}
 				}
 			}
@@ -508,18 +555,8 @@ foreach my $analogfiles (@analogfiles)		#log
 	while($line = <LogN>)	
     {
     	chomp $line;
-    	next if (substr($line,0,3) ne "\{\@B");
-    	next if (substr($line,0,5) eq "\{\@RPT");
-    	last if (eof);
-    	
-    	#print $line,"\n";
     	my @string = split('\|', $line);
-    	next if scalar @string < 3;
-    	next if ($string[2] ne "00");
-    	$string[1] = substr($string[1],index($string[1],"%")+1);
-		#print $string[1],"\n";
-
-		if ($string[0] eq "\{\@BTEST" and $counter == 1)	# 写SN到Summary中
+		if ($string[0] eq '{@BTEST' and $counter == 1)	# 写SN到Summary中
 		{
 			$summary-> write($col, 0, $string[1], $format_item);
 			if($string[2] eq "00"){$summary-> write($col, 1, "Pass", $format_Pcpk);}
@@ -528,21 +565,71 @@ foreach my $analogfiles (@analogfiles)		#log
 			$counter++;
 			$col++;
 			}
+    	next unless (substr($line,0,7) eq '{@BLOCK');
+		$string[1] = substr($string[1],index($string[1],"%")+1);
 
-		elsif (exists($matrix{$string[1]}))	# 单项测试数据
+		my $lines = <LogN>;
+		chomp $lines;
+		my @lists = split('\|', $lines);
+
+    	if (exists($matrix{$string[1]}))			# 单项测试数据
 		{
+			if ($lines =~ '@A-')	#result line matching
+			{
+				#print $lines."\n";
+				$value = $matrix{$string[1]};
+				#print $value,"\n";
+				$value =~ s/\t$//;
+				$matrix{$string[1]} = $value.substr ($lines,10,13)."\t";
+				}
+			}
+		elsif (not exists($matrix{$string[1]}) and substr($lists[3],-4) ne 'LIM2' and $lines =~ '@A-')		# 新增单项测试数据
+		{
+			#print $string[1],"	",substr($lines,2,5),"	",$lines,"\n";
+			if (substr($lines,2,5) =~ "(A-RES|A-CAP|A-IND)"){push(@Titles, $string[1]); $DevLim{$string[1]} = $lists[4].' / '.substr($lists[5],0,-2).' / '.$lists[3].' / '.substr($lines,4,3); $matrix{$string[1]} = "\t" x ($col-2).substr ($lines,10,13)."\t";}	#H-L-N
+			if (substr($lines,2,5) =~ "(A-JUM|A-DIO)" and scalar @lists eq 5){push(@Titles, $string[1]); $DevLim{$string[1]} = $lists[3].' / '.substr($lists[4],0,-2).' / '.'-'.' / '.substr($lines,4,3); $matrix{$string[1]} = "\t" x ($col-2).substr ($lines,10,13)."\t";}
+			}
+		elsif (scalar @lists == 6 and exists($matrix{$string[1].'/'.substr($lists[3],0,-6)}))		# 多项测试名
+		{
+			#print $string[1].'/'.substr($lists[3],0,-6),"	",substr ($lines,10,13),"	",$lines,"\n";
+			$value = $matrix{$string[1].'/'.substr($lists[3],0,-6)};
+			$value =~ s/\t$//;
+			$matrix{$string[1].'/'.substr($lists[3],0,-6)} = $value.substr ($lines,10,13)."\t";
 			while($line = <LogN>)
 			{
 				chomp $line;
-				if ($line =~ "\@A-")	#result line matching
+				last if ($line !~ '{@A-');
+				last if (eof);
+				#print $line,"\n";
+				my @string1 = split('\|', $line);
+				#print $string[1]."/".substr($string1[3],0,length($string1[3])-6),"\n";
+				if (scalar @string1 == 6 and exists($matrix{$string[1].'/'.substr($string1[3],0,-6)}))
 				{
-					#print $line."\n";
-					$value = $matrix{$string[1]};
-					#print $value,"\n";
-					$matrix{$string[1]} = $value.substr ($line,10,13)."\t";
-					#$workbook-> write($row, $col, substr ($line,10,13), $format_data); 
-					#print substr($line,10,13)."\n";
-					last;
+					$value = $matrix{$string[1].'/'.substr($string1[3],0,-6)};
+					$value =~ s/\t$//;
+					$matrix{$string[1].'/'.substr($string1[3],0,-6)} = $value.substr ($line,10,13)."\t";
+					}
+				}
+			}
+		elsif (scalar @lists == 6 and not exists($matrix{$string[1].'/'.substr($lists[3],0,-6)}))	# 新增多项测试名
+		{
+			#print $string[1].'/'.substr($lists[3],0,-6),"	",substr($lines,2,5),"	",$lines,"\n";
+			push(@Titles, $string[1].'/'.substr($lists[3],0,-6));
+			$DevLim{$string[1].'/'.substr($lists[3],0,-6)} = $lists[4].' / '.substr($lists[5],0,-2).' / '.'-'.' / '.substr($lines,4,3);
+			$matrix{$string[1].'/'.substr($lists[3],0,-6)} = "\t" x ($col-2).substr ($lines,10,13)."\t";
+			while($line = <LogN>)
+			{
+				chomp $line;
+				last if ($line !~ '{@A-');
+				last if (eof);
+				#print $line,"\n";
+				my @string1 = split('\|', $line);
+				#print $string[1]."/".substr($string1[3],0,length($string1[3])-6),"	",$line,"\n";
+				if (scalar @string1 == 6 and not exists($matrix{$string[1].'/'.substr($string1[3],0,-6)}))
+				{
+					push(@Titles, $string[1].'/'.substr($string1[3],0,-6));
+					$DevLim{$string[1].'/'.substr($string1[3],0,-6)} = $string1[4].' / '.substr($string1[5],0,-2).' / '.'-'.' / '.substr($line,4,3);
+					$matrix{$string[1].'/'.substr($string1[3],0,-6)} = "\t" x ($col-2).substr ($line,10,13)."\t";
 					}
 				}
 			}
@@ -555,13 +642,12 @@ foreach my $analogfiles (@analogfiles)		#log
 				last if (eof);
 				my @string1 = split('\|', $line);
 				#print "/".substr($string1[3],0,length($string1[3])-6),"\n";
-				if ($line =~ "\@A-"	and exists($matrix{$string[1]."/".substr($string1[3],0,length($string1[3])-6)}))	#subname matching
+				if ($line =~ '@A-'	and exists($matrix{$string[1]."/".substr($string1[3],0,length($string1[3])-6)}))	#subname matching
 				{
 					#print $line."\n";
 					$value = $matrix{$string[1]."/".substr($string1[3],0,length($string1[3])-6)};
 					#print $value,"\n";
 					$matrix{$string[1]."/".substr($string1[3],0,length($string1[3])-6)} = $value.substr ($line,10,13)."\t";
-					#$workbook-> write($row, $col, substr ($line,10,13), $format_data); 
 					}
 				}
 			}
@@ -571,33 +657,37 @@ foreach my $analogfiles (@analogfiles)		#log
 	}
 
 # print "PPDCIN_AON/OUTPUT value is: $matrix{'PPDCIN_AON/OUTPUT'} \n";
-# print "rn304 value is: $matrix{'rn304'} \n";
-# 
-# my @group = split("\t",$matrix{'PPDCIN_AON/OUTPUT'});
-# $size = @group;
-# print "z - 哈希大小: $size\n";
+# print "r5511 value is: $matrix{'r5511'} \n";
 
+# foreach my $key (sort keys %matrix) {
+#     print "$key => $matrix{$key}\n";
+# }
 
-# initialize PDF subject.
-my $pdf = PDF::Builder->new(-file => 'CPK_report'.'-'.$hour.$min.$sec.'.pdf');
-my $page = $pdf->page();
-# $page->mediabox('A4');  # 设置 A4 纸张尺寸（595x842点）
-$page->mediabox(612, 792);  # 设置 A4 纸张尺寸（595x842点）
+# foreach my $key (sort keys %DevLim) {
+#     print "$key => $DevLim{$key}\n";
+# }
+
 
 my $data = [
     ['Plot', 'Item', 'Nominal', 'LoLimit', 'Hilimit', 'Minimum', 'Maxmium', 'CPK'],  # 表头
 ];
 
-foreach my $i (0..@Titles-1)		# output array to Excel.
+foreach my $i (0..@Titles-1)		# create array.
 {
+	#print $Titles[$i],"\n";
 	my @group = split("\t",$matrix{$Titles[$i]});
-	my $USL = substr($DevLim{$Titles[$i]},0,13);
-	my $LSL = substr($DevLim{$Titles[$i]},16,13);
-	my $Nom = substr($DevLim{$Titles[$i]},32,13);
-	my $min = min @group;
-	my $max = max @group;
-	my $mean = @group ? sum(@group) / @group : warn "!!! array is empty.\n";
-	my $sigma = sqrt( sum( map { ($_-$mean)**2 } @group ) / @group );
+	@group = map { substr($_, 0, 13) } @group;			# attain fixed length data (duplicate data).
+	my @numeric = grep { $_ =~ /^\S+$/ } @group;		# clear out empty data in array.
+	@numeric = map { substr($_, 0, 13) } @numeric;
+	my @array = split(" / ",$DevLim{$Titles[$i]});
+	my $USL = $array[0];
+	my $LSL = $array[1];
+	my $Nom = $array[2];
+	my $min = min @numeric;
+	my $max = max @numeric;
+	my $mean = @numeric ? sum(@numeric) / @numeric : warn "!!! array is empty.\n", next;
+	my $sigma = sqrt( sum( map { ($_-$mean)**2 } @numeric ) / @numeric );
+	if ($sigma == 0){$sigma = 0.1}		# handling sigma = 0.
 	my $CPK = min(($USL - $mean),($mean - $LSL))/($sigma*3);
 	
 	my $data1 = [
@@ -605,10 +695,15 @@ foreach my $i (0..@Titles-1)		# output array to Excel.
 	];
 	$data = [@{$data}, @{$data1}];
 	}
-
 # my $data = ($head, \@data_array);
 
-my $table = PDF::Table->new();
+# create and config PDF subject.
+my $pdf = PDF::Builder->new(-file => 'CPK_report'.'-'.$hour.$min.$sec.'.pdf');
+my $page = $pdf->page();
+# $page->mediabox('A4');  # 设置 A4 纸张尺寸（595x842点）
+$page->mediabox(612, 792);  # 设置 A4 纸张尺寸（595x842点）
+
+my $table = PDF::Table->new();		# output array to PDF.
 $table->table(
     $pdf,          # PDF::Builder 对象
     $page,         # 页面对象
@@ -638,46 +733,95 @@ $table->table(
         [{ width => 30 }],# 第2列宽度
     ]
 );
-
 $pdf->save();
 
+# output array to Excel, create diagram and merge into PDF.
 $pdf = PDF::Builder->open('CPK_report'.'-'.$hour.$min.$sec.'.pdf');
-foreach my $i (0..@Titles-1)		# output array to Excel.
+foreach my $i (0..@Titles-1)
 {
 	print "analyzing ".$Titles[$i]," ...\n";
 	my @group = split("\t",$matrix{$Titles[$i]});
-	$workbook-> write_row ($i+1, 11, \@group, $format_data); 
+	@group = map { substr($_, 0, 13) } @group;
+	my @numeric = grep { $_ =~ /^\S+$/ } @group;
+	@numeric = map { substr($_, 0, 13) } @numeric;
+	#print "$Titles[$i] DevLim is: $DevLim{$Titles[$i]} \n";
+	my @parametric = split(" / ",$DevLim{$Titles[$i]});
+	#print $parametric[2],"\n";
+	
+	$workbook-> write ($i+1, 3, $parametric[0], $format_data); #Hilimit
+	$workbook-> write ($i+1, 4, $parametric[1], $format_data); #Lolimit
+	$workbook-> write ($i+1, 2, $parametric[2], $format_data); #Nominal
+	$workbook-> write ($i+1, 1, $parametric[3], $format_data); #Type
+
+	$workbook-> write_formula($i+1, 5, "=MAX(L".($i+2).":FFF".($i+2).")", $format_data);  #输出Max
+	$workbook-> write_formula($i+1, 6, "=MIN(L".($i+2).":FFF".($i+2).")", $format_data);  #输出Min
+	$workbook-> write_formula($i+1, 7, "=AVERAGE(L".($i+2).":FFF".($i+2).")", $format_data);  #输出Average
+	$workbook-> write_formula($i+1, 8, "=STDEV(L".($i+2).":FFF".($i+2).")", $format_data);  #输出标准差
+	$workbook-> write_formula($i+1, 9, "=IF(I".($i+2).">0,(D".($i+2)."-E".($i+2).")/6/I".($i+2).")", $format_data);  #输出CP
+	$workbook-> write_formula($i+1, 10, "=MIN((D".($i+2)."-H".($i+2)."),(H".($i+2)."-E".($i+2)."))/I".($i+2)."/3", $format_data);  #输出CPK
+
+	if ($parametric[3] eq "JUM"){
+	$workbook-> conditional_formatting($i+1, 3,
+    {
+    	type     => 'cell',
+     	criteria => 'less than',
+     	value    => "=F".($i+2)."+D".($i+2)."*0.3",
+     	format   => $format_Fcpk,
+    	});
+	}
+	else{
+    $workbook-> conditional_formatting($i+1, 3,
+    {
+    	type     => 'cell',
+     	criteria => 'less than',
+     	value    => "=F".($i+2)."+(D".($i+2)."-E".($i+2).")*0.15",
+     	format   => $format_Fcpk,
+    	});
+    $workbook-> conditional_formatting($i+1, 4,
+    {
+    	type     => 'cell',
+     	criteria => 'greater than',
+     	value    => "=G".($i+2)."-(D".($i+2)."-E".($i+2).")*0.15",
+     	format   => $format_Fcpk,
+    	});
+	}
+	
+	$workbook-> write_row ($i+1, 11, \@group, $format_data);		# output array to Excel.
 	next if (scalar(@group) == 0);
 
 	# print $DevLim{$Titles[$i]},"\n";
-	my $USL = substr($DevLim{$Titles[$i]},0,13);
-	my $LSL = substr($DevLim{$Titles[$i]},16,13);
-	my $Nom = substr($DevLim{$Titles[$i]},32,13);
+	my @array = split(" / ",$DevLim{$Titles[$i]});
+	my $USL = $array[0];
+	my $LSL = $array[1];
+	my $Nom = $array[2];
+
 	# print $USL,"\n";
 	# print $LSL,"\n";
 	# print $Nom,"\n";
-	if ($USL eq "+9.999999E+99"){$USL = (max @group)*1.5;}
+	if ($USL eq "+9.999999E+99"){$USL = (max @numeric)*1.5;}
+	if ($Nom eq "-"){$Nom = $USL*0.9;}
 
 	my @x; my @y; my $y_max; my $y_min;
 	my @LoLi; my @HiLi; my @Nomi;
-	foreach my $s (0..@group-1)
+	foreach my $s (0..@numeric-1)
 	{
 		push @x, '';
-		push @y, $group[$s];
+		push @y, $numeric[$s];
 		push @LoLi, $LSL;
 		push @HiLi, $USL;
 		push @Nomi, $Nom;
 		}
 
-	my $min = min @group;
-	my $max = max @group;
-	my $mean = @group ? sum(@group) / @group : warn "!!! array is empty.\n";
+	my $min = min @numeric;
+	my $max = max @numeric;
+	my $mean = @numeric ? sum(@numeric) / @numeric : warn "!!! array is empty.\n";
 	print "	Min: $min\n";
 	print "	Max: $max\n";
 	print "	Ave: $mean\n"; 
 
 	# calculate StdDev
-    my $sigma = sqrt( sum( map { ($_-$mean)**2 } @group ) / @group );
+    my $sigma = sqrt( sum( map { ($_-$mean)**2 } @numeric ) / @numeric );
+	if ($sigma == 0){$sigma = 0.1}		# handling sigma = 0.
 	printf "	StdDev: %.4f\n", $sigma;
 	
 	# calculate CPK
@@ -685,16 +829,19 @@ foreach my $i (0..@Titles-1)		# output array to Excel.
 	printf "	CPK: %.4f\n", $CPK;
 	$CPK = sprintf("%.4f", $CPK);
 
-	if ($max > 0){$y_max = $USL * 1.1}else{$y_max = $max * 0.9}
-	if ($min > 0){$y_min = $LSL * 0.9}else{$y_min = $min * 1.1}
+	if ($max > 0 and $max < $USL){$y_max = $USL * 1.1}
+	if ($max < 0 and $max > $USL){$y_max = $max * 0.9}
+	if ($min > 0 and $min > $LSL){$y_min = $LSL * 0.9}
+	if ($min < 0 and $min < $LSL){$y_min = $min * 1.1}
 	if ($LSL < 0){$y_min = $LSL * 1.1}
+	if ($max > 0 and $USL > $max*2){$y_max = $max * 1.3}
 
-	# visualize object
+	# PNG visualize object configuration
 	my $graph = GD::Graph::points->new(700, 500);
 	$graph->set(
 	    title			=> uc($Titles[$i])." data distribution",
-	    x_label			=> "Count = ".scalar @group.",   Min = $min,   Max = $max,   CPK = $CPK",
-	    y_label			=> 'Tolerance: '.$LSL.' / '.$USL,
+	    x_label			=> "Count = ".scalar @numeric.",   Min = $min,   Max = $max,   CPK = $CPK",
+	    y_label			=> 'Tolerance: (H)'.$USL.' / (L)'.$LSL,
 	    markers			=> [7, 3, 9, 8],
 	    dclrs			=> ['marine', 'lred', 'lred', 'green'],
 		transparent		=> 0,
@@ -717,21 +864,22 @@ foreach my $i (0..@Titles-1)		# output array to Excel.
 
 	$graph->set_legend('Measured Value', 'High Limit', 'Low Limit', 'Nominal Value');
 
-	# generate PNG diagram
-	# if ($Titles[$i] =~ "\/"){$Titles[$i] =~ s/\//\%/i;}
 	my $PNGTitle = $Titles[$i];
 	if ($PNGTitle =~ "\/"){$PNGTitle =~ s/\//\%/i;}
-	$workbook-> write_url ($i+1, 0, 'Plots/'.$PNGTitle.'.png', $Titles[$i], $format_item);
 
+	# generate PNG diagram.
 	open my $fh, '>', 'Plots/'.uc($PNGTitle).'.png' or die $!;
 	binmode $fh;
 	print $fh $graph->plot(\@data)->png;
 	close $fh;
 
+	# create hyperlink into excel.
+	$workbook-> write_url ($i+1, 0, 'Plots/'.$PNGTitle.'.png', $Titles[$i], $format_item);
+
 	# 添加A4页面（尺寸为595x842点）
 	my $page = $pdf->page();
 	$page->mediabox(750, 550);
-	
+
 	# 加载图片（支持PNG/JPEG格式）
 	my $image = $pdf->image('Plots/'.$PNGTitle.'.png');  
 	$page->object($image, 25, 25);	# 指定坐标位置
