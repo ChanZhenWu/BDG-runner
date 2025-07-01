@@ -213,7 +213,7 @@ foreach my $analogfiles (@analogfiles)
     		{
     			type     => 'cell',
     		 	criteria => 'less than',
-    		 	value    => "=F".($row+1)."+D".($row+1)."*0.3",
+    		 	value    => "=F".($row+1)."+D".($row+1)."*0.3",	# cell value < Max+HiL*0.3
     		 	format   => $format_Fcpk,
     			});
        		$row++;
@@ -240,7 +240,7 @@ foreach my $analogfiles (@analogfiles)
     		{
     			type     => 'cell',
     		 	criteria => 'less than',
-    		 	value    => "=F".($row+1)."+(D".($row+1)."-E".($row+1).")*0.15",
+    		 	value    => "=F".($row+1)."+(D".($row+1)."-E".($row+1).")*0.15",	# cell value < Max+(HiL-LoL)*0.15
     		 	format   => $format_Fcpk,
     			});
 
@@ -248,7 +248,7 @@ foreach my $analogfiles (@analogfiles)
     		{
     			type     => 'cell',
     		 	criteria => 'greater than',
-    		 	value    => "=G".($row+1)."-(D".($row+1)."-E".($row+1).")*0.15",
+    		 	value    => "=G".($row+1)."-(D".($row+1)."-E".($row+1).")*0.15",	# cell value > Min-(HiL-LoL)*0.15
     		 	format   => $format_Fcpk,
     			});
     		
@@ -387,14 +387,14 @@ foreach my $analogfiles (@analogfiles)
     		{
     			type     => 'cell',
     		 	criteria => 'less than',
-    		 	value    => "=F".($row+1)."+(D".($row+1)."-E".($row+1).")*0.15",
+    		 	value    => "=F".($row+1)."+(D".($row+1)."-E".($row+1).")*0.15",	# # cell value < Max+(HiL-LoL)*0.15
     		 	format   => $format_Fcpk,
     			});
        		$workbook-> conditional_formatting($row, 4,
     		{
     			type     => 'cell',
     		 	criteria => 'greater than',
-    		 	value    => "=G".($row+1)."-(D".($row+1)."-E".($row+1).")*0.15",
+    		 	value    => "=G".($row+1)."-(D".($row+1)."-E".($row+1).")*0.15",	# cell value > Min-(HiL-LoL)*0.15
     		 	format   => $format_Fcpk,
     			});
 			
@@ -510,8 +510,8 @@ foreach my $analogfiles (@analogfiles)		#log
 			}
 		elsif (scalar @lists == 6 and not exists($matrix{$string[1].'/'.substr($lists[3],0,-6)}))	# 新增多项测试名
 		{
-			#print $string[1].'/'.substr($lists[3],0,-6),"	",substr($lines,2,5),"	",$lines,"\n";
-			push(@Titles, $string[1].'/'.substr($lists[3],0,-6));
+			# print $string[1].'/'.substr($lists[3],0,-6),"	",substr($lines,2,5),"	",$lines,"\n";
+			# push(@Titles, $string[1].'/'.substr($lists[3],0,-6));
 			$DevLim{$string[1].'/'.substr($lists[3],0,-6)} = $lists[4].' / '.substr($lists[5],0,-2).' / '.'-'.' / '.substr($lines,4,3);
 			$matrix{$string[1].'/'.substr($lists[3],0,-6)} = "\t" x ($col-2).substr ($lines,10,13)."\t";
 			while($line = <LogN>)
@@ -676,7 +676,7 @@ foreach my $i (0..@Titles-1)		# create array.
 {
 	#print $Titles[$i],"\n";
 	my @group = split("\t",$matrix{$Titles[$i]});
-	@group = map { substr($_, 0, 13) } @group;			# attain fixed length data (duplicate data).
+	@group = map { if (length($_) == 13){substr($_, 0, 13)} elsif (length($_) == 26){substr($_, 14, 13)} } @group;		# attain fixed length data (duplicate data).
 	my @numeric = grep { $_ =~ /^\S+$/ } @group;		# clear out empty data in array.
 	@numeric = map { substr($_, 0, 13) } @numeric;
 	my @array = split(" / ",$DevLim{$Titles[$i]});
@@ -741,7 +741,7 @@ foreach my $i (0..@Titles-1)
 {
 	print "analyzing ".$Titles[$i]," ...\n";
 	my @group = split("\t",$matrix{$Titles[$i]});
-	@group = map { substr($_, 0, 13) } @group;
+	@group = map { if (length($_) == 13){substr($_, 0, 13)} elsif (length($_) == 26){substr($_, 14, 13)} } @group;
 	my @numeric = grep { $_ =~ /^\S+$/ } @group;
 	@numeric = map { substr($_, 0, 13) } @numeric;
 	#print "$Titles[$i] DevLim is: $DevLim{$Titles[$i]} \n";
