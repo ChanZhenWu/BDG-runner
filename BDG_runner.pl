@@ -613,8 +613,8 @@ foreach my $analogfiles (@analogfiles)		#log
 			}
 		elsif (scalar @lists == 6 and not exists($matrix{$string[1].'/'.substr($lists[3],0,-6)}))	# 新增多项测试名
 		{
-			#print $string[1].'/'.substr($lists[3],0,-6),"	",substr($lines,2,5),"	",$lines,"\n";
-			push(@Titles, $string[1].'/'.substr($lists[3],0,-6));
+			# print $string[1].'/'.substr($lists[3],0,-6),"	",substr($lines,2,5),"	",$lines,"\n";
+			# push(@Titles, $string[1].'/'.substr($lists[3],0,-6));
 			$DevLim{$string[1].'/'.substr($lists[3],0,-6)} = $lists[4].' / '.substr($lists[5],0,-2).' / '.'-'.' / '.substr($lines,4,3);
 			$matrix{$string[1].'/'.substr($lists[3],0,-6)} = "\t" x ($col-2).substr ($lines,10,13)."\t";
 			while($line = <LogN>)
