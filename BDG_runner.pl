@@ -2,10 +2,10 @@
 #################################################################
 ## This script is used to calculate CPK base on 3070 log file.
 ## Author: noon_chen@apple.com
-## V3.9
+## V4.0
 #################################################################
 
-print "\n\tCPK calculator base on i3070 log (v3.9)\n";
+print "\n\tCPK calculator base on i3070 log (v4.0)\n";
 
 use strict;
 use warnings;
@@ -171,7 +171,7 @@ foreach my $analogfiles (@analogfiles)
     	{
     		chomp $line;
     		my @string = split('\|', $line);
-    		
+
 		if ($line =~ "\@BTEST")
     	{
     		#print $string[12]."\n";
@@ -208,14 +208,6 @@ foreach my $analogfiles (@analogfiles)
 			$workbook-> write_formula($row, 8, "=STDEV(L".($row+1).":FFF".($row+1).")", $format_data);  #输出标准差
 			$workbook-> write_formula($row, 9, "=IF(I".($row+1).">0,(D".($row+1)."-E".($row+1).")/6/I".($row+1).")", $format_data);  #输出CP
 			$workbook-> write_formula($row, 10, "=MIN((D".($row+1)."-H".($row+1)."),(H".($row+1)."-E".($row+1)."))/I".($row+1)."/3", $format_data);  #输出CPK
-
-       		$workbook-> conditional_formatting($row, 3,
-    		{
-    			type     => 'cell',
-    		 	criteria => 'less than',
-    		 	value    => "=F".($row+1)."+D".($row+1)."*0.3",	# cell value < Max+HiL*0.3
-    		 	format   => $format_Fcpk,
-    			});
        		$row++;
        		}
         elsif ($line =~ "\@LIM2" and $line =~ "\@A-DIO" and scalar @string == 5)    # Diode
@@ -235,23 +227,6 @@ foreach my $analogfiles (@analogfiles)
 			$workbook-> write_formula($row, 8, "=STDEV(L".($row+1).":FFF".($row+1).")", $format_data);  # 输出标准差
 			$workbook-> write_formula($row, 9, "=IF(I".($row+1).">0,(D".($row+1)."-E".($row+1).")/6/I".($row+1).")", $format_data);  #输出CP
 			$workbook-> write_formula($row, 10, "=MIN((D".($row+1)."-H".($row+1)."),(H".($row+1)."-E".($row+1)."))/I".($row+1)."/3", $format_data);  #输出CPK
-
-       		$workbook-> conditional_formatting($row, 3,
-    		{
-    			type     => 'cell',
-    		 	criteria => 'less than',
-    		 	value    => "=F".($row+1)."+(D".($row+1)."-E".($row+1).")*0.15",	# cell value < Max+(HiL-LoL)*0.15
-    		 	format   => $format_Fcpk,
-    			});
-
-       		$workbook-> conditional_formatting($row, 4,
-    		{
-    			type     => 'cell',
-    		 	criteria => 'greater than',
-    		 	value    => "=G".($row+1)."-(D".($row+1)."-E".($row+1).")*0.15",	# cell value > Min-(HiL-LoL)*0.15
-    		 	format   => $format_Fcpk,
-    			});
-    		
        		$row++;
        		}
         elsif ($line =~ "\@LIM2" and $line =~ "\@A-DIO" and scalar @string == 6)    # Diode
@@ -272,23 +247,6 @@ foreach my $analogfiles (@analogfiles)
 			$workbook-> write_formula($row, 8, "=STDEV(L".($row+1).":FFF".($row+1).")", $format_data);  # 输出标准差
 			$workbook-> write_formula($row, 9, "=IF(I".($row+1).">0,(D".($row+1)."-E".($row+1).")/6/I".($row+1).")", $format_data);  #输出CP
 			$workbook-> write_formula($row, 10, "=MIN((D".($row+1)."-H".($row+1)."),(H".($row+1)."-E".($row+1)."))/I".($row+1)."/3", $format_data);  #输出CPK
-
-       		$workbook-> conditional_formatting($row, 3,
-    		{
-    			type     => 'cell',
-    		 	criteria => 'less than',
-    		 	value    => "=F".($row+1)."+(D".($row+1)."-E".($row+1).")*0.15",
-    		 	format   => $format_Fcpk,
-    			});
-
-       		$workbook-> conditional_formatting($row, 4,
-    		{
-    			type     => 'cell',
-    		 	criteria => 'greater than',
-    		 	value    => "=G".($row+1)."-(D".($row+1)."-E".($row+1).")*0.15",
-    		 	format   => $format_Fcpk,
-    			});
-    		
        		$row++;
        		}
         elsif ($line =~ "\@LIM2" and scalar @string == 5)    # single step Volts
@@ -308,22 +266,6 @@ foreach my $analogfiles (@analogfiles)
 			$workbook-> write_formula($row, 8, "=STDEV(L".($row+1).":FFF".($row+1).")", $format_data);  # 输出标准差
 			$workbook-> write_formula($row, 9, "=IF(I".($row+1).">0,(D".($row+1)."-E".($row+1).")/6/I".($row+1).")", $format_data);  #输出CP
 			$workbook-> write_formula($row, 10, "=MIN((D".($row+1)."-H".($row+1)."),(H".($row+1)."-E".($row+1)."))/I".($row+1)."/3", $format_data);  #输出CPK
-
-       		$workbook-> conditional_formatting($row, 3,
-    		{
-    			type     => 'cell',
-    		 	criteria => 'less than',
-    		 	value    => "=F".($row+1)."+(D".($row+1)."-E".($row+1).")*0.15",
-    		 	format   => $format_Fcpk,
-    			});
-       		$workbook-> conditional_formatting($row, 4,
-    		{
-    			type     => 'cell',
-    		 	criteria => 'greater than',
-    		 	value    => "=G".($row+1)."-(D".($row+1)."-E".($row+1).")*0.15",
-    		 	format   => $format_Fcpk,
-    			});
-    		
        		$row++;
        		}
         elsif ($line =~ "\@LIM3" and scalar @string == 6)     # LCR
@@ -343,24 +285,6 @@ foreach my $analogfiles (@analogfiles)
 			$workbook-> write_formula($row, 8, "=STDEV(L".($row+1).":FFF".($row+1).")", $format_data);  # 输出标准差
 			$workbook-> write_formula($row, 9, "=IF(I".($row+1).">0,(D".($row+1)."-E".($row+1).")/6/I".($row+1).")", $format_data);  #输出CP
 			$workbook-> write_formula($row, 10, "=MIN((D".($row+1)."-H".($row+1)."),(H".($row+1)."-E".($row+1)."))/I".($row+1)."/3", $format_data);  #输出CPK
-
-			#Hli = 41.25-(41.25-28.05)*0.25
-			#Lli = 28.05+(41.25-28.05)*0.25
-       		$workbook-> conditional_formatting($row, 3,
-    		{
-    			type     => 'cell',
-    		 	criteria => 'less than',
-    		 	value    => "=F".($row+1)."+(D".($row+1)."-E".($row+1).")*0.15",
-    		 	format   => $format_Fcpk,
-    			});
-       		$workbook-> conditional_formatting($row, 4,
-    		{
-    			type     => 'cell',
-    		 	criteria => 'greater than',
-    		 	value    => "=G".($row+1)."-(D".($row+1)."-E".($row+1).")*0.15",
-    		 	format   => $format_Fcpk,
-    			});
-    		
        		$row++;
        		}
 
@@ -382,22 +306,6 @@ foreach my $analogfiles (@analogfiles)
 			$workbook-> write_formula($row, 8, "=STDEV(L".($row+1).":FFF".($row+1).")", $format_data);  # 输出标准差
 			$workbook-> write_formula($row, 9, "=IF(I".($row+1).">0,(D".($row+1)."-E".($row+1).")/6/I".($row+1).")", $format_data);  #输出CP
 			$workbook-> write_formula($row, 10, "=MIN((D".($row+1)."-H".($row+1)."),(H".($row+1)."-E".($row+1)."))/I".($row+1)."/3", $format_data);  #输出CPK
-
-       		$workbook-> conditional_formatting($row, 3,
-    		{
-    			type     => 'cell',
-    		 	criteria => 'less than',
-    		 	value    => "=F".($row+1)."+(D".($row+1)."-E".($row+1).")*0.15",	# # cell value < Max+(HiL-LoL)*0.15
-    		 	format   => $format_Fcpk,
-    			});
-       		$workbook-> conditional_formatting($row, 4,
-    		{
-    			type     => 'cell',
-    		 	criteria => 'greater than',
-    		 	value    => "=G".($row+1)."-(D".($row+1)."-E".($row+1).")*0.15",	# cell value > Min-(HiL-LoL)*0.15
-    		 	format   => $format_Fcpk,
-    			});
-			
        		$row++;
        		}
     	}close NLog;}
@@ -449,7 +357,6 @@ foreach my $analogfiles (@analogfiles)		#log
 	if ($! eq "No such file or directory"){next;}
 	foreach my $key (keys %matrix) { $matrix{$key} = $matrix{$key}."\t";}		# append default 'tab' for each items.
 
-	if ($board eq 'single'){
 	while($line = <LogN>)	
     {
     	chomp $line;
@@ -464,109 +371,7 @@ foreach my $analogfiles (@analogfiles)		#log
 			$col++;
 			}
     	next unless (substr($line,0,7) eq '{@BLOCK');
-
-		my $lines = <LogN>;
-		chomp $lines;
-		my @lists = split('\|', $lines);
-
-    	if (exists($matrix{$string[1]}))			# 单项测试数据
-		{
-			if ($lines =~ '@A-')	#result line matching
-			{
-				#print $lines."\n";
-				$value = $matrix{$string[1]};
-				#print $value,"\n";
-				$value =~ s/\t$//;					# clear out appended 'tab' when found data.
-				$matrix{$string[1]} = $value.substr ($lines,10,13)."\t";
-				}
-			}
-		elsif (not exists($matrix{$string[1]}) and substr($lists[3],-4) ne 'LIM2' and $lines =~ '@A-')		# 新增单项测试数据
-		{
-			#print $string[1],"	",substr($lines,2,5),"	",$lines,"\n";
-			if (substr($lines,2,5) =~ "(A-RES|A-CAP|A-IND)"){push(@Titles, $string[1]); $DevLim{$string[1]} = $lists[4].' / '.substr($lists[5],0,-2).' / '.$lists[3].' / '.substr($lines,4,3); $matrix{$string[1]} = "\t" x ($col-2).substr ($lines,10,13)."\t";}	#H-L-N
-			if (substr($lines,2,5) =~ "(A-JUM|A-DIO)" and scalar @lists eq 5){push(@Titles, $string[1]); $DevLim{$string[1]} = $lists[3].' / '.substr($lists[4],0,-2).' / '.'-'.' / '.substr($lines,4,3); $matrix{$string[1]} = "\t" x ($col-2).substr ($lines,10,13)."\t";}
-			}
-		elsif (scalar @lists == 6 and exists($matrix{$string[1].'/'.substr($lists[3],0,-6)}))		# 多项测试名
-		{
-			#print $string[1].'/'.substr($lists[3],0,-6),"	",substr ($lines,10,13),"	",$lines,"\n";
-			$value = $matrix{$string[1].'/'.substr($lists[3],0,-6)};
-			$value =~ s/\t$//;
-			$matrix{$string[1].'/'.substr($lists[3],0,-6)} = $value.substr ($lines,10,13)."\t";
-			while($line = <LogN>)
-			{
-				chomp $line;
-				last if ($line !~ '{@A-');
-				last if (eof);
-				#print $line,"\n";
-				my @string1 = split('\|', $line);
-				#print $string[1]."/".substr($string1[3],0,length($string1[3])-6),"\n";
-				if (scalar @string1 == 6 and exists($matrix{$string[1].'/'.substr($string1[3],0,-6)}))
-				{
-					$value = $matrix{$string[1].'/'.substr($string1[3],0,-6)};
-					$value =~ s/\t$//;
-					$matrix{$string[1].'/'.substr($string1[3],0,-6)} = $value.substr ($line,10,13)."\t";
-					}
-				}
-			}
-		elsif (scalar @lists == 6 and not exists($matrix{$string[1].'/'.substr($lists[3],0,-6)}))	# 新增多项测试名
-		{
-			# print $string[1].'/'.substr($lists[3],0,-6),"	",substr($lines,2,5),"	",$lines,"\n";
-			# push(@Titles, $string[1].'/'.substr($lists[3],0,-6));
-			$DevLim{$string[1].'/'.substr($lists[3],0,-6)} = $lists[4].' / '.substr($lists[5],0,-2).' / '.'-'.' / '.substr($lines,4,3);
-			$matrix{$string[1].'/'.substr($lists[3],0,-6)} = "\t" x ($col-2).substr ($lines,10,13)."\t";
-			while($line = <LogN>)
-			{
-				chomp $line;
-				last if ($line !~ '{@A-');
-				last if (eof);
-				#print $line,"\n";
-				my @string1 = split('\|', $line);
-				#print $string[1]."/".substr($string1[3],0,length($string1[3])-6),"	",$line,"\n";
-				if (scalar @string1 == 6 and not exists($matrix{$string[1].'/'.substr($string1[3],0,-6)}))
-				{
-					push(@Titles, $string[1].'/'.substr($string1[3],0,-6));
-					$DevLim{$string[1].'/'.substr($string1[3],0,-6)} = $string1[4].' / '.substr($string1[5],0,-2).' / '.'-'.' / '.substr($line,4,3);
-					$matrix{$string[1].'/'.substr($string1[3],0,-6)} = "\t" x ($col-2).substr ($line,10,13)."\t";
-					}
-				}
-			}
-		else
-		{
-			while($line = <LogN>)
-			{
-				chomp $line;
-				last if ($line eq "\}");
-				last if (eof);
-				my @string1 = split('\|', $line);
-				#print "/".substr($string1[3],0,length($string1[3])-6),"\n";
-				if ($line =~ '@A-'	and exists($matrix{$string[1]."/".substr($string1[3],0,length($string1[3])-6)}))	#subname matching
-				{
-					#print $line."\n";
-					$value = $matrix{$string[1]."/".substr($string1[3],0,length($string1[3])-6)};
-					#print $value,"\n";
-					$matrix{$string[1]."/".substr($string1[3],0,length($string1[3])-6)} = $value.substr ($line,10,13)."\t";
-					}
-				}
-			}
-		}
-	}
-
-	if ($board eq 'panel'){
-	while($line = <LogN>)	
-    {
-    	chomp $line;
-    	my @string = split('\|', $line);
-		if ($string[0] eq '{@BTEST' and $counter == 1)	# 写SN到Summary中
-		{
-			$summary-> write($col, 0, $string[1], $format_item);
-			if($string[2] eq "00"){$summary-> write($col, 1, "Pass", $format_Pcpk);}
-			else{$summary-> write($col, 1, "Fail", $format_Fcpk);}
-			$summary-> write($col, 2, $string[4], $format_data);
-			$counter++;
-			$col++;
-			}
-    	next unless (substr($line,0,7) eq '{@BLOCK');
-		$string[1] = substr($string[1],index($string[1],"%")+1);
+		if($string[1] =~ /(^\d+%)/){$string[1] = substr($string[1],index($string[1],"%")+1);}
 
 		my $lines = <LogN>;
 		chomp $lines;
@@ -652,7 +457,6 @@ foreach my $analogfiles (@analogfiles)		#log
 				}
 			}
 		}
-	}
 	close LogN;
 	}
 
@@ -676,7 +480,7 @@ foreach my $i (0..@Titles-1)		# create array.
 {
 	#print $Titles[$i],"\n";
 	my @group = split("\t",$matrix{$Titles[$i]});
-	@group = map { if (length($_) == 13){substr($_, 0, 13)} elsif (length($_) == 26){substr($_, 14, 13)} } @group;		# attain fixed length data (duplicate data).
+	@group = map { if (length($_) == 13){$_ = substr($_, 0, 13)} elsif (length($_) > 13){$_ = substr($_, -13)} } @group;		# attain fixed length data (duplicate data).
 	my @numeric = grep { $_ =~ /^\S+$/ } @group;		# clear out empty data in array.
 	@numeric = map { substr($_, 0, 13) } @numeric;
 	my @array = split(" / ",$DevLim{$Titles[$i]});
@@ -741,7 +545,7 @@ foreach my $i (0..@Titles-1)
 {
 	print "analyzing ".$Titles[$i]," ...\n";
 	my @group = split("\t",$matrix{$Titles[$i]});
-	@group = map { if (length($_) == 13){substr($_, 0, 13)} elsif (length($_) == 26){substr($_, 14, 13)} } @group;
+	@group = map { if (length($_) == 13){$_ = substr($_, 0, 13)} elsif (length($_) > 13){$_ = substr($_, -13)} } @group;
 	my @numeric = grep { $_ =~ /^\S+$/ } @group;
 	@numeric = map { substr($_, 0, 13) } @numeric;
 	#print "$Titles[$i] DevLim is: $DevLim{$Titles[$i]} \n";
@@ -765,7 +569,7 @@ foreach my $i (0..@Titles-1)
     {
     	type     => 'cell',
      	criteria => 'less than',
-     	value    => "=F".($i+2)."+D".($i+2)."*0.3",
+     	value    => "=H".($i+2)."+D".($i+2)."*0.5",
      	format   => $format_Fcpk,
     	});
 	}
@@ -774,14 +578,14 @@ foreach my $i (0..@Titles-1)
     {
     	type     => 'cell',
      	criteria => 'less than',
-     	value    => "=F".($i+2)."+(D".($i+2)."-E".($i+2).")*0.15",
+     	value    => "=H".($i+2)."+(D".($i+2)."-E".($i+2).")*0.25",
      	format   => $format_Fcpk,
     	});
     $workbook-> conditional_formatting($i+1, 4,
     {
     	type     => 'cell',
      	criteria => 'greater than',
-     	value    => "=G".($i+2)."-(D".($i+2)."-E".($i+2).")*0.15",
+     	value    => "=H".($i+2)."-(D".($i+2)."-E".($i+2).")*0.25",
      	format   => $format_Fcpk,
     	});
 	}
@@ -905,7 +709,6 @@ my $duration = $end_time - $start_time;
 printf "\n	runtime: %.4f Sec\n", $duration;
 
 print "\n	>>> Done .....\n\n";
-#system 'pause';
-
+# <STDIN>;
 
 
